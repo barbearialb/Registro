@@ -318,7 +318,12 @@ else:
                     with col_acao:
                         if st.button("🗑️", key=f"delete_ag_{i}_{agendamento['Cliente']}_{agendamento['Horário']}"):
                             st.session_state.agendamentos.remove(agendamento)
-                            st.success(f"Agendamento de {agendamento['Cliente']} às {agendamento['Horário']} removido!")
+                            try:
+                                valor_removido = float(agendamento.get('Valor (R$)', 0) or 0)
+                            except (ValueError, TypeError):
+                                valor_removido = 0.0
+
+                            st.success(f"Agendamento de {agendamento.get('Cliente', '')} às {agendamento.get('Horário', '')} de R$ {valor_removido:.2f} removido!")
                             st.rerun() # Recarregar a página para atualizar a tabela        
             else:
                 st.info("Nenhum agendamento para esta data.")
