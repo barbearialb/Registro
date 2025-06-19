@@ -190,13 +190,12 @@ if 'dados_carregados' not in st.session_state:
 
 # --- LOGIN ---
 # --- LOGIN ---
-if not st.session_state.logged_in:
+if not st.session_state.get('logged_in', False):
     login_col1, login_col2, login_col3 = st.columns([1, 1, 1])
     with login_col2:
         st.markdown("<h1 style='text-align: center;'>Acesso Restrito</h1>", unsafe_allow_html=True)
-        st.markdown("<h3 style='text-align: center;'>Faça login para continuar</h3>", unsafe_allow_html=True)
 
-        # --- LOGO CENTRALIZADA E MAIOR ---
+        # Logo centralizada
         st.markdown(
             """
             <div style='text-align: center; margin-top: 10px; margin-bottom: 20px;'>
@@ -207,19 +206,27 @@ if not st.session_state.logged_in:
         )
 
         st.markdown("---")
-    with st.form(key="login_form"):
+
+        # Formulário de login
+        with st.form(key="login_form"):
             username = st.text_input("Usuário").strip().lower()
             password = st.text_input("Senha", type="password").strip()
             submit_button = st.form_submit_button(label="Entrar")
 
-        if login_button:
+        if submit_button:
             if username in USUARIOS and USUARIOS[username] == password:
                 st.session_state.logged_in = True
-                st.success("Login realizado com sucesso! Carregando dados...")
+                st.success("✅ Login realizado com sucesso! Carregando dados...")
+                if not st.session_state.get('dados_carregados', False):
+                    df_ag, df_sai, df_ven = carregar_dados()
+                    st.session_state.agendamentos = df_ag.to_dict('records')
+                    st.session_state.saidas = df_sai.to_dict('records')
+                    st.session_state.vendas = df_ven.to_dict('records')
+                    st.session_state.dados_carregados = True
                 st.experimental_rerun()
             else:
-                st.error("Usuário ou senha incorretos.")
-# ... o restante do código ...
+                st.error("❌ Usuário ou senha incorretos.")
+
 else:
     # --- SIDEBAR ---
     st.sidebar.title("Painel de Controle")
