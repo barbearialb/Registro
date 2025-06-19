@@ -442,10 +442,15 @@ else:
     sai = st.session_state.saidas
     ven = st.session_state.vendas
 
-    total_ag = sum(reg.get("Valor (R$)", 0) for reg in ag if reg["Data"] == data_selecionada)
-    total_sai = sum(reg.get("Valor (R$)", 0) for reg in sai if reg["Data"] == data_selecionada)
-    total_ven = sum(reg.get("Valor (R$)", 0) for reg in ven if reg["Data"] == data_selecionada)
-    lucro = total_ag + total_ven - total_sai
+    def valor_seguro(valor):
+        try:
+            return float(valor)
+        except (ValueError, TypeError):
+            return 0.0
+        
+    total_ag = sum(valor_seguro(reg.get("Valor (R$)", 0)) for reg in ag if reg.get("Data") == data_selecionada)
+    total_sai = sum(valor_seguro(reg.get("Valor (R$)", 0)) for reg in sai if reg.get("Data") == data_selecionada)
+    total_ven = sum(valor_seguro(reg.get("Valor (R$)", 0)) for reg in ven if reg.get("Data") == data_selecionada)
 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("💼 Agendamentos", f"R$ {total_ag:.2f}")
