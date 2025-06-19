@@ -451,7 +451,9 @@ else:
     total_ag = sum(valor_seguro(reg.get("Valor (R$)", 0)) for reg in ag if reg.get("Data") == data_selecionada)
     total_sai = sum(valor_seguro(reg.get("Valor (R$)", 0)) for reg in sai if reg.get("Data") == data_selecionada)
     total_ven = sum(valor_seguro(reg.get("Valor (R$)", 0)) for reg in ven if reg.get("Data") == data_selecionada)
-
+    
+    lucro = total_ag + total_ven - total_sai
+    
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("💼 Agendamentos", f"R$ {total_ag:.2f}")
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
