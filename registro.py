@@ -207,22 +207,16 @@ if not st.session_state.logged_in:
         )
 
         st.markdown("---")
-
-        username = st.text_input("Usuário")
-        password = st.text_input("Senha", type="password")
-
-        login_button = st.button("Entrar")
+    with st.form(key="login_form"):
+            username = st.text_input("Usuário").strip().lower()
+            password = st.text_input("Senha", type="password").strip()
+            submit_button = st.form_submit_button(label="Entrar")
 
         if login_button:
             if username in USUARIOS and USUARIOS[username] == password:
                 st.session_state.logged_in = True
-                if not st.session_state.dados_carregados:
-                    df_ag, df_sai, df_ven = carregar_dados()
-                    st.session_state.agendamentos = df_ag.to_dict('records')
-                    st.session_state.saidas = df_sai.to_dict('records')
-                    st.session_state.vendas = df_ven.to_dict('records')
-                    st.session_state.dados_carregados = True
-                st.rerun()
+                st.success("Login realizado com sucesso! Carregando dados...")
+                st.experimental_rerun()
             else:
                 st.error("Usuário ou senha incorretos.")
 # ... o restante do código ...
