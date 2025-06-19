@@ -310,7 +310,11 @@ else:
                     with col_barbeiro:
                         st.write(agendamento["Barbeiro"])
                     with col_valor:
-                        st.write(f"R$ {agendamento['Valor (R$)']:.2f}")
+                        try:
+                            valor = float(agendamento.get('Valor (R$)', 0) or 0)
+                        except (ValueError, TypeError):
+                            valor = 0.0  # valor padrão caso esteja vazio ou inválido
+                        st.write(f"R$ {valor:.2f}")
                     with col_acao:
                         if st.button("🗑️", key=f"delete_ag_{i}_{agendamento['Cliente']}_{agendamento['Horário']}"):
                             st.session_state.agendamentos.remove(agendamento)
@@ -362,7 +366,11 @@ else:
                 with col_descricao:
                     st.write(saida["Descrição"])
                 with col_valor_saida:
-                    st.write(f"R$ {saida['Valor (R$)']:.2f}")
+                    try:
+                        valor_saida = float(saida.get('Valor (R$)', 0) or 0)
+                    except (ValueError, TypeError):
+                        valor_saida = 0.0
+                    st.write(f"R$ {valor_saida:.2f}")
                 with col_acao_saida:
                     if st.button("🗑️", key=f"delete_saida_{i}_{saida['Descrição']}_{saida['Data']}"):
                         st.session_state.saidas.remove(saida)
@@ -422,7 +430,11 @@ else:
                 with col_item:
                     st.write(venda["Item"])
                 with col_valor_venda:
-                    st.write(f"R$ {venda['Valor (R$)']:.2f}")
+                    try:
+                        valor_venda = float(venda.get('Valor (R$)', 0) or 0)
+                    except (ValueError, TypeError):
+                        valor_venda = 0.0
+                    st.write(f"R$ {valor_venda:.2f}")
                 with col_acao_venda:
                     if st.button("🗑️", key=f"delete_venda_{i}_{venda['Item']}_{venda['Data']}"):
                         st.session_state.vendas.remove(venda)
@@ -438,11 +450,18 @@ else:
     sai = st.session_state.saidas
     ven = st.session_state.vendas
 
-    total_ag = sum(reg.get("Valor (R$)", 0) for reg in ag if reg["Data"] == data_selecionada)
-    total_sai = sum(reg.get("Valor (R$)", 0) for reg in sai if reg["Data"] == data_selecionada)
-    total_ven = sum(reg.get("Valor (R$)", 0) for reg in ven if reg["Data"] == data_selecionada)
+    def valor_seguro(valor):
+        try:
+            return float(valor)
+        except (ValueError, TypeError):
+            return 0.0
+        
+    total_ag = sum(valor_seguro(reg.get("Valor (R$)", 0)) for reg in ag if reg.get("Data") == data_selecionada)
+    total_sai = sum(valor_seguro(reg.get("Valor (R$)", 0)) for reg in sai if reg.get("Data") == data_selecionada)
+    total_ven = sum(valor_seguro(reg.get("Valor (R$)", 0)) for reg in ven if reg.get("Data") == data_selecionada)
+    
     lucro = total_ag + total_ven - total_sai
-
+    
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("💼 Agendamentos", f"R$ {total_ag:.2f}")
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
