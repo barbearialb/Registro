@@ -366,7 +366,11 @@ else:
                 with col_descricao:
                     st.write(saida["Descrição"])
                 with col_valor_saida:
-                    st.write(f"R$ {saida['Valor (R$)']:.2f}")
+                    try:
+                        valor_saida = float(saida.get('Valor (R$)', 0) or 0)
+                    except (ValueError, TypeError):
+                        valor_saida = 0.0
+                    st.write(f"R$ {valor_saida:.2f}")
                 with col_acao_saida:
                     if st.button("🗑️", key=f"delete_saida_{i}_{saida['Descrição']}_{saida['Data']}"):
                         st.session_state.saidas.remove(saida)
@@ -426,7 +430,11 @@ else:
                 with col_item:
                     st.write(venda["Item"])
                 with col_valor_venda:
-                    st.write(f"R$ {venda['Valor (R$)']:.2f}")
+                    try:
+                        valor_venda = float(venda.get('Valor (R$)', 0) or 0)
+                    except (ValueError, TypeError):
+                        valor_venda = 0.0
+                    st.write(f"R$ {valor_venda:.2f}")
                 with col_acao_venda:
                     if st.button("🗑️", key=f"delete_venda_{i}_{venda['Item']}_{venda['Data']}"):
                         st.session_state.vendas.remove(venda)
