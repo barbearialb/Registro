@@ -208,8 +208,8 @@ if not st.session_state.logged_in:
 
         st.markdown("---")
 
-        username = st.text_input("Usuário",key="login_username")
-        password = st.text_input("Senha", type="password", key="login_password")
+        username = st.text_input("Usuário")
+        password = st.text_input("Senha", type="password")
 
         login_button = st.button("Entrar")
 
