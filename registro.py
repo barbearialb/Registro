@@ -311,7 +311,7 @@ else:
                         st.write(agendamento["Barbeiro"])
                     with col_valor:
                         try:
-                            valor = float(agendamento['Valor (R$)'])
+                            valor = float(agendamento.get('Valor (R$)', 0) or 0)
                         except (ValueError, TypeError)
                             valor = 0.0  # valor padrão caso esteja vazio ou inválido
                         st.write(f"R$ {valor:.2f}")
