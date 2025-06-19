@@ -374,7 +374,12 @@ else:
                 with col_acao_saida:
                     if st.button("🗑️", key=f"delete_saida_{i}_{saida['Descrição']}_{saida['Data']}"):
                         st.session_state.saidas.remove(saida)
-                        st.success(f"Saída '{saida['Descrição']}' de R$ {saida['Valor (R$)']:.2f} removida!")
+                        try:
+                            valor_removido = float(saida.get('Valor (R$)', 0) or 0)
+                        except (ValueError, TypeError):
+                            valor_removido = 0.0
+
+                        st.success(f"Saída '{saida.get('Descrição', '')}' de R$ {valor_removido:.2f} removida!")
                         st.rerun() # Recarregar a página para atualizar a tabela
         else:
             st.info("Nenhuma saída registrada para esta data.")
@@ -438,7 +443,12 @@ else:
                 with col_acao_venda:
                     if st.button("🗑️", key=f"delete_venda_{i}_{venda['Item']}_{venda['Data']}"):
                         st.session_state.vendas.remove(venda)
-                        st.success(f"Venda '{venda['Item']}' de R$ {venda['Valor (R$)']:.2f} removida!")
+                        try:
+                            valor_removido = float(venda.get('Valor (R$)', 0) or 0)
+                        except (ValueError, TypeError):
+                            valor_removido = 0.0
+
+                        st.success(f"Venda '{venda.get('Item', '')}' de R$ {valor_removido:.2f} removida!")
                         st.rerun()
         else:
             st.info("Nenhuma venda registrada para esta data.")
