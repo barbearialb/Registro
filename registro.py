@@ -318,12 +318,7 @@ else:
                     with col_acao:
                         if st.button("🗑️", key=f"delete_ag_{i}_{agendamento['Cliente']}_{agendamento['Horário']}"):
                             st.session_state.agendamentos.remove(agendamento)
-                            try:
-                                valor_removido = float(agendamento.get('Valor (R$)', 0) or 0)
-                            except (ValueError, TypeError):
-                                valor_removido = 0.0
-
-                            st.success(f"Agendamento de {agendamento.get('Cliente', '')} às {agendamento.get('Horário', '')} de R$ {valor_removido:.2f} removido!")
+                            st.success(f"Agendamento de {agendamento['Cliente']} às {agendamento['Horário']} removido!")
                             st.rerun() # Recarregar a página para atualizar a tabela        
             else:
                 st.info("Nenhum agendamento para esta data.")
@@ -379,12 +374,7 @@ else:
                 with col_acao_saida:
                     if st.button("🗑️", key=f"delete_saida_{i}_{saida['Descrição']}_{saida['Data']}"):
                         st.session_state.saidas.remove(saida)
-                        try:
-                            valor_removido = float(saida.get('Valor (R$)', 0) or 0)
-                        except (ValueError, TypeError):
-                            valor_removido = 0.0
-
-                        st.success(f"Saída '{saida.get('Descrição', '')}' de R$ {valor_removido:.2f} removida!")
+                        st.success(f"Saída '{saida['Descrição']}' de R$ {saida['Valor (R$)']:.2f} removida!")
                         st.rerun() # Recarregar a página para atualizar a tabela
         else:
             st.info("Nenhuma saída registrada para esta data.")
@@ -448,12 +438,7 @@ else:
                 with col_acao_venda:
                     if st.button("🗑️", key=f"delete_venda_{i}_{venda['Item']}_{venda['Data']}"):
                         st.session_state.vendas.remove(venda)
-                        try:
-                            valor_removido = float(venda.get('Valor (R$)', 0) or 0)
-                        except (ValueError, TypeError):
-                            valor_removido = 0.0
-
-                        st.success(f"Venda '{venda.get('Item', '')}' de R$ {valor_removido:.2f} removida!")
+                        st.success(f"Venda '{venda['Item']}' de R$ {venda['Valor (R$)']:.2f} removida!")
                         st.rerun()
         else:
             st.info("Nenhuma venda registrada para esta data.")
