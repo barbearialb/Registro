@@ -310,7 +310,11 @@ else:
                     with col_barbeiro:
                         st.write(agendamento["Barbeiro"])
                     with col_valor:
-                        st.write(f"R$ {agendamento['Valor (R$)']:.2f}")
+                        try:
+                            valor = float(agendamento['Valor (R$)'])
+                        except (ValueError, TypeError)
+                            valor = 0.0  # valor padrão caso esteja vazio ou inválido
+                            st.write(f"R$ {valor:.2f}")
                     with col_acao:
                         if st.button("🗑️", key=f"delete_ag_{i}_{agendamento['Cliente']}_{agendamento['Horário']}"):
                             st.session_state.agendamentos.remove(agendamento)
