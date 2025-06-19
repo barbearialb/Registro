@@ -190,12 +190,13 @@ if 'dados_carregados' not in st.session_state:
 
 # --- LOGIN ---
 # --- LOGIN ---
-if not st.session_state.get('logged_in', False):
+if not st.session_state.logged_in:
     login_col1, login_col2, login_col3 = st.columns([1, 1, 1])
     with login_col2:
         st.markdown("<h1 style='text-align: center;'>Acesso Restrito</h1>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center;'>Faça login para continuar</h3>", unsafe_allow_html=True)
 
-        # Logo centralizada
+        # --- LOGO CENTRALIZADA E MAIOR ---
         st.markdown(
             """
             <div style='text-align: center; margin-top: 10px; margin-bottom: 20px;'>
@@ -207,26 +208,24 @@ if not st.session_state.get('logged_in', False):
 
         st.markdown("---")
 
-        # Formulário de login
-        with st.form(key="login_form"):
-            username = st.text_input("Usuário").strip().lower()
-            password = st.text_input("Senha", type="password").strip()
-            submit_button = st.form_submit_button(label="Entrar")
+        username = st.text_input("Usuário")
+        password = st.text_input("Senha", type="password")
 
-        if submit_button:
+        login_button = st.button("Entrar")
+
+        if login_button:
             if username in USUARIOS and USUARIOS[username] == password:
                 st.session_state.logged_in = True
-                st.success("✅ Login realizado com sucesso! Carregando dados...")
-                if not st.session_state.get('dados_carregados', False):
+                if not st.session_state.dados_carregados:
                     df_ag, df_sai, df_ven = carregar_dados()
                     st.session_state.agendamentos = df_ag.to_dict('records')
                     st.session_state.saidas = df_sai.to_dict('records')
                     st.session_state.vendas = df_ven.to_dict('records')
                     st.session_state.dados_carregados = True
-                st.experimental_rerun()
+                st.rerun()
             else:
-                st.error("❌ Usuário ou senha incorretos.")
-
+                st.error("Usuário ou senha incorretos.")
+# ... o restante do código ...
 else:
     # --- SIDEBAR ---
     st.sidebar.title("Painel de Controle")
