@@ -242,7 +242,7 @@ else:
     # --- TÍTULO E ENTRADAS ---
     st.title("Registro Diário da Barbearia Lucas Borges")
     st.markdown("---")
-    opcoes_servicos = ["Degradê", "Pezim", "Social", "Tradicional", "Visagismo", "Navalhado"]
+    opcoes_servicos = ["Degradê", "Pezim", "Barba", "Social", "Tradicional", "Visagismo", "Navalhado"]
     opcoes_pagamento = ["Pix", "Dinheiro", "Cartão"]
     opcoes_barbeiros = ["Aluízio", "Lucas Borges"]
     horarios_disponiveis = gerar_horarios(8, 22, 30)
