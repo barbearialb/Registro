@@ -7,7 +7,7 @@ import json
 
 # --- CONFIGURAÇÕES ---
 USUARIOS = {
-    "lb": "cortesnobres",
+    "lb": "cn",
 }
 # --- Configuração do Google Sheets ---
 try:
@@ -242,7 +242,7 @@ else:
     # --- TÍTULO E ENTRADAS ---
     st.title("Registro Diário da Barbearia Lucas Borges")
     st.markdown("---")
-    opcoes_servicos = ["Degradê", "Pezim", "Social", "Tradicional", "Visagismo"]
+    opcoes_servicos = ["Degradê", "Pezim", "Social", "Tradicional", "Visagismo", "Navalhado"]
     opcoes_pagamento = ["Pix", "Dinheiro", "Cartão"]
     opcoes_barbeiros = ["Aluízio", "Lucas Borges"]
     horarios_disponiveis = gerar_horarios(8, 22, 30)
@@ -260,6 +260,7 @@ else:
             with col1:
                 nome_cliente = st.text_input("Nome do Cliente")
                 tipo_servico = st.selectbox("Tipo de Serviço", options=opcoes_servicos)
+                opcao_barba = st.selectbox("Barba", options=["Sem Barba", "Com Barba"])
             with col2:
                 horario = st.selectbox("Horário", options=horarios_disponiveis)
                 barbeiro = st.selectbox("Barbeiro", options=opcoes_barbeiros)
@@ -276,10 +277,19 @@ else:
                 elif agendamento_existe(st.session_state.agendamentos, data_selecionada, horario, barbeiro):
                     st.warning("Já existe um agendamento neste horário com esse barbeiro.")
                 else:
+                    if opcao_barba == "Com Barba":
+                        servico_final = f"{tipo_servico} com Barba"
+                    else:
+                        servico_final = tipo_servico
+
                     st.session_state.agendamentos.append({
-                        "Data": data_selecionada, "Horário": horario,
-                        "Cliente": nome_cliente.strip(), "Serviço": tipo_servico,
-                        "Barbeiro": barbeiro, "Pagamento": pagamento, "Valor (R$)": valor
+                        "Data": data_selecionada, 
+                        "Horário": horario,
+                        "Cliente": nome_cliente.strip(), 
+                        "Serviço": servico_final,
+                        "Barbeiro": barbeiro, 
+                        "Pagamento": pagamento, 
+                        "Valor (R$)": valor
                     })
                     st.success(f"Agendamento para {nome_cliente} às {horario} registrado!")
             
