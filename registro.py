@@ -276,6 +276,8 @@ else:
                     st.error("Valor deve ser maior que zero.")
                 elif agendamento_existe(st.session_state.agendamentos, data_selecionada, horario, barbeiro):
                     st.warning("Já existe um agendamento neste horário com esse barbeiro.")
+                elif tipo_servico == "Barba" and opcao_barba == "Com Barba":
+                    st.error("Não faz sentido agendar 'Barba com Barba'. Por favor, ajuste sua seleção.")
                 else:
                     if opcao_barba == "Com Barba":
                         servico_final = f"{tipo_servico} com Barba"
