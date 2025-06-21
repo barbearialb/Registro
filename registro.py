@@ -311,7 +311,9 @@ else:
             if agendamentos_do_dia:
                 st.subheader(f"Agendamentos para {data_selecionada.strftime('%d/%m/%Y')}")
 
-                agendamentos_para_mostrar = list(agendamentos_do_dia) 
+                agendamentos_para_mostrar = sorted(agendamentos_do_dia, key=lambda x: datetime.strptime(x['Horário'], "%H:%M"))
+
+ 
         
         # Iterar sobre os agendamentos e adicionar um botão de exclusão
                 for i, agendamento in enumerate(agendamentos_para_mostrar):
