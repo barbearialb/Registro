@@ -250,7 +250,7 @@ else:
     st.markdown("---")
     opcoes_servicos = ["Degradê", "Pezim", "Barba", "Social", "Tradicional", "Visagismo", "Navalhado"]
     opcoes_pagamento = ["Pix", "Dinheiro", "Cartão"]
-    opcoes_barbeiros = ["Aluízio", "Lucas Borges"]
+    opcoes_barbeiros = ["Aluízio", "Lucas Borges", "Erik"]
     horarios_disponiveis = gerar_horarios(8, 22, 30)
     data_selecionada = st.date_input("Selecione a data", value=datetime.today().date(), format="DD/MM/YYYY")
 
