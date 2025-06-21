@@ -221,6 +221,11 @@ if not st.session_state.logged_in:
                     st.session_state.agendamentos = df_ag.to_dict('records')
                     st.session_state.saidas = df_sai.to_dict('records')
                     st.session_state.vendas = df_ven.to_dict('records')
+                    # Garantir que todos os registros tenham o campo "Pagamento"
+                    for agendamento in st.session_state.agendamentos:
+                        if "Pagamento" not in agendamento:
+                            agendamento["Pagamento"] = "Não informado"  # Valor padrão
+
                     st.session_state.dados_carregados = True
                 st.rerun()
             else:
@@ -293,6 +298,10 @@ else:
                         "Pagamento": pagamento, 
                         "Valor (R$)": valor
                     })
+                    if "Pagamento" not in novo_agendamento:
+                        novo_agendamento["Pagamento"] = "Não informado"
+
+                    st.session_state.agendamentos.append(novo_agendamento)
                     st.success(f"Agendamento para {nome_cliente} às {horario} registrado!")
             
             st.markdown("---")
