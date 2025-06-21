@@ -136,6 +136,16 @@ def salvar_dados(agendamentos, saidas, vendas):
             df_sai['Data'] = df_sai['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
         if 'Data' in df_ven.columns:
             df_ven['Data'] = df_ven['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
+        # Adiciona e reorganiza as colunas nos agendamentos
+        if "Valor (R$)" not in df_ag.columns:
+            df_ag["Valor (R$)"] = 0.0
+        if "Valor 1 (R$)" not in df_ag.columns:
+            df_ag["Valor 1 (R$)"] = 0.0
+        if "Valor 2 (R$)" not in df_ag.columns:
+            df_ag["Valor 2 (R$)"] = 0.0
+        
+        # Reorganiza as colunas para manter a ordem desejada
+        df_ag = df_ag[["Data", "Horário", "Cliente", "Serviço", "Barbeiro", "Pagamento", "Valor (R$)", "Valor 1 (R$)", "Valor 2 (R$)"]]
 
         ws_agendamentos.clear()
         ws_agendamentos.update([df_ag.columns.values.tolist()] + df_ag.values.tolist())
@@ -335,7 +345,7 @@ else:
         
         # Iterar sobre os agendamentos e adicionar um botão de exclusão
                 for i, agendamento in enumerate(agendamentos_para_mostrar):
-                    col_idx, col_horario, col_cliente, col_servico, col_barbeiro, col_pagamento, col_valor, col_acao = st.columns([0.5, 1, 2, 1.5, 1.5, 1, 1, 0.7])
+                    col_idx, col_horario, col_cliente, col_servico, col_barbeiro, col_pagamento, col_valor, col_valor1, col_valor2, col_acao = st.columns([0.5, 1, 2, 1.5, 1.5, 1, 1, 1, 1, 0.7])
             
                     with col_idx:
                         st.write(i + 1) # Número da linha
@@ -355,6 +365,18 @@ else:
                         except (ValueError, TypeError):
                             valor = 0.0  # valor padrão caso esteja vazio ou inválido
                         st.write(f"R$ {valor:.2f}")
+                    with col_valor1:
+                        try:
+                            valor1 = float(agendamento.get('Valor 1 (R$)', 0) or 0)
+                        except (ValueError, TypeError):
+                            valor1 = 0.0  # valor padrão caso esteja vazio ou inválido
+                        st.write(f"R$ {valor1:.2f}")
+                    with col_valor2:
+                        try:
+                            valor2 = float(agendamento.get('Valor 2 (R$)', 0) or 0)
+                        except (ValueError, TypeError):
+                            valor2 = 0.0  # valor padrão caso esteja vazio ou inválido
+                        st.write(f"R$ {valor2:.2f}")
                     with col_acao:
                         if st.button("🗑️", key=f"delete_ag_{i}_{agendamento['Cliente']}_{agendamento['Horário']}"):
                             st.session_state.agendamentos.remove(agendamento)
