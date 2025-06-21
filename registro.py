@@ -249,7 +249,7 @@ else:
     st.title("Registro Diário da Barbearia Lucas Borges")
     st.markdown("---")
     opcoes_servicos = ["Degradê", "Pezim", "Barba", "Social", "Tradicional", "Visagismo", "Navalhado"]
-    opcoes_pagamento = ["Pix", "Dinheiro", "Cartão"]
+    opcoes_pagamento = ["Pix", "Dinheiro", "Cartão", "Dinheiro e Pix", "Cartão e Pix", "Cartão e Dinheiro"]
     opcoes_barbeiros = ["Aluízio", "Lucas Borges", "Erik"]
     horarios_disponiveis = gerar_horarios(8, 22, 30)
     data_selecionada = st.date_input("Selecione a data", value=datetime.today().date(), format="DD/MM/YYYY")
