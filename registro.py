@@ -42,6 +42,7 @@ def carregar_dados():
             data_ag = all_values_agendamentos[1:]
             
             df_ag = pd.DataFrame(data_ag, columns=headers_ag)
+            df_ag['Pagamento'] = df_ag.get('Pagamento', 'Não informado')
             
             # Garantir que todas as colunas esperadas existam
             expected_ag_cols = ['Data', 'Horário', 'Cliente', 'Serviço', 'Barbeiro', 'Pagamento', 'Valor (R$)']
