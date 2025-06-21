@@ -128,6 +128,8 @@ def salvar_dados(agendamentos, saidas, vendas):
         df_sai = pd.DataFrame(saidas)
         df_ven = pd.DataFrame(vendas)
 
+        if "Vendedor" not in df_ven.columns:
+            df_ven["Vendedor"] = ""
         if 'Data' in df_ag.columns:
             df_ag['Data'] = df_ag['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
         if 'Data' in df_sai.columns:
@@ -157,11 +159,20 @@ def gerar_horarios(inicio_hora, fim_hora, intervalo_min):
         current += pd.Timedelta(minutes=intervalo_min)
     return horarios
 
-def agendamento_existe(agendamentos, data, horario, barbeiro):
-    for ag in agendamentos:
-        if ag["Data"] == data and ag["Horário"] == horario and ag["Barbeiro"] == barbeiro:
-            return True
-    return False
+def agendamento_existe(agendamentos, data, horario, barbeiro, novo_servico):
+    agendamentos_mesmo_horario = [
+        ag for ag in agendamentos
+        if ag["Data"] == data and ag["Horário"] == horario and ag["Barbeiro"] == barbeiro
+    ]        
+    if not agendamentos_mesmo_horario:
+        return False    
+    if len(agendamentos_mesmo_horario) == 1:
+        servico_existente = agendamentos_mesmo_horario[0]["Serviço"]
+        if "Pezim" in servico_existente and "Pezim" in novo_servico:
+            return False
+        if ("Pezim" in servico_existente and novo_servico != "Pezim") or ("Pezim" in novo_servico and servico_existente != "Pezim"):
+            return False
+    return True    
 
 # --- CONFIG PÁGINA ---
 st.set_page_config(
@@ -272,23 +283,30 @@ else:
                 barbeiro = st.selectbox("Barbeiro", options=opcoes_barbeiros)
             with col3:
                 pagamento = st.selectbox("Forma de Pagamento", options=opcoes_pagamento)
-                valor = st.number_input("Valor (R$)", min_value=0.0, format="%.2f")
+                pagamento_combinado = pagamento in ["Dinheiro e Pix", "Cartão e Pix", "Cartão e Dinheiro"]
+                if pagamento_combinado:
+                    st.markdown("### Valores combinados:")
+                    primeiro_valor = st.number_input("Valor 1 (R$)", min_value=0.0, format="%.2f", key="valor1")
+                    segundo_valor = st.number_input("Valor 2 (R$)", min_value=0.0, format="%.2f", key="valor2")
+                    valor = primeiro_valor + segundo_valor
+                else:
+                    valor = st.number_input("Valor (R$)", min_value=0.0, format="%.2f")
 
             registrar = st.button("Registrar Agendamento")
             if registrar:
+                if opcao_barba == "Com Barba":
+                    servico_final = f"{tipo_servico} com Barba"
+                else:
+                    servico_final = tipo_servico
                 if not nome_cliente.strip():
                     st.error("O nome do cliente não pode estar vazio.")
                 elif valor <= 0:
                     st.error("Valor deve ser maior que zero.")
-                elif agendamento_existe(st.session_state.agendamentos, data_selecionada, horario, barbeiro):
+                elif agendamento_existe(st.session_state.agendamentos, data_selecionada, horario, barbeiro, servico_final):
                     st.warning("Já existe um agendamento neste horário com esse barbeiro.")
                 elif tipo_servico == "Barba" and opcao_barba == "Com Barba":
                     st.error("Não faz sentido agendar 'Barba com Barba'. Por favor, ajuste sua seleção.")
                 else:
-                    if opcao_barba == "Com Barba":
-                        servico_final = f"{tipo_servico} com Barba"
-                    else:
-                        servico_final = tipo_servico
 
                     st.session_state.agendamentos.append({
                         "Data": data_selecionada, 
@@ -408,6 +426,7 @@ else:
         with st.expander("➕ Registrar Nova Venda"):
             item_venda = st.text_input("Item Vendido")
             valor_venda = st.number_input("Valor da Venda (R$)", min_value=0.0, format="%.2f", key="valor_venda")
+            vendedor = st.selectbox("Vendedor Responsável", ["Lucas Borges", "Aluízio", "Erik", "Maria"], key="vendedor")
             registrar_venda = st.button("Registrar Venda", key="btn_registrar_venda")
 
             if registrar_venda:
@@ -417,7 +436,7 @@ else:
                     st.error("O valor da venda deve ser maior que zero.")
                 else:
                     st.session_state.vendas.append({
-                        "Data": data_selecionada, "Item": item_venda.strip(), "Valor (R$)": valor_venda
+                        "Data": data_selecionada, "Item": item_venda.strip(), "Valor (R$)": valor_venda, "Vendedor": vendedor
                     })
                     st.success(f"Venda de {item_venda} por R$ {valor_venda:.2f} registrada!")
 
