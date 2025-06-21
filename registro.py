@@ -309,7 +309,7 @@ else:
         
         # Iterar sobre os agendamentos e adicionar um botão de exclusão
                 for i, agendamento in enumerate(agendamentos_para_mostrar):
-                    col_idx, col_horario, col_cliente, col_servico, col_barbeiro, col_pagamento, col_valor, col_acao = st.columns([0.5, 1, 2, 1.5, 1.5, 1, 0.7])
+                    col_idx, col_horario, col_cliente, col_servico, col_barbeiro, col_pagamento, col_valor, col_acao = st.columns([0.5, 1, 2, 1.5, 1.5, 1, 1, 0.7])
             
                     with col_idx:
                         st.write(i + 1) # Número da linha
