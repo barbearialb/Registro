@@ -317,8 +317,7 @@ else:
                 elif tipo_servico == "Barba" and opcao_barba == "Com Barba":
                     st.error("Não faz sentido agendar 'Barba com Barba'. Por favor, ajuste sua seleção.")
                 else:
-
-                    st.session_state.agendamentos.append({
+                    registro = {
                         "Data": data_selecionada, 
                         "Horário": horario,
                         "Cliente": nome_cliente.strip(), 
@@ -326,7 +325,14 @@ else:
                         "Barbeiro": barbeiro, 
                         "Pagamento": pagamento if pagamento else "Não informado", 
                         "Valor (R$)": valor
-                    })
+                    }
+                    if pagamento_combinado:
+                        registro["Valor 1 (R$)"] = primeiro_valor
+                        registro["Valor 2 (R$)"] = segundo_valor
+                    else:
+                        registro["Valor 1 (R$)"] = "0.0"
+                        registro["Valor 2 (R$)"] = "0.0"
+                    st.session_state.agendamentos.append(registro)
                     st.success(f"Agendamento para {nome_cliente} às {horario} registrado!")
             
             st.markdown("---")
@@ -338,8 +344,18 @@ else:
             # Na linha 157
             if agendamentos_do_dia:
                 st.subheader(f"Agendamentos para {data_selecionada.strftime('%d/%m/%Y')}")
-
                 agendamentos_para_mostrar = sorted(agendamentos_do_dia, key=lambda x: datetime.strptime(x['Horário'], "%H:%M"))
+                col_idx, col_horario, col_cliente, col_servico, col_barbeiro, col_pagamento, col_valor, col_valor1, col_valor2, col_acao = st.columns([0.5, 1, 2, 1.5, 1.5, 1, 1, 1, 1, 0.7])
+                with col_idx: st.markdown(**#**")
+                with col_horario: st.markdown("**Horário**")
+                with col_cliente: st.markdown("**Cliente**")
+                with col_servico: st.markdown("**Serviço**")
+                with col_barbeiro: st.markdown("**Barbeiro**")
+                with col_pagamento: st.markdown("**Pagamento**")
+                with col_valor: st.markdown("**Valor Total**")
+                with col_valor1: st.markdown("**Valor 1**")
+                with col_valor2: st.markdown("**Valor 2**")
+                with col_acao: st.markdown("**Cancelar**")
 
  
         
