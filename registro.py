@@ -236,7 +236,7 @@ else:
     # --- SIDEBAR ---
     st.sidebar.title("Painel de Controle")
     st.sidebar.markdown("---")
-    if st.sidebar.button("Salvar Alterações 📂", type="primary"):
+    if st.sidebar.button("Salvar Agendamentos 📂", type="primary"):
         salvar_dados(st.session_state.agendamentos, st.session_state.saidas, st.session_state.vendas)
     st.sidebar.markdown("---")
     st.sidebar.info("Lembre-se de salvar suas alterações antes de sair.")
