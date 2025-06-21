@@ -296,13 +296,9 @@ else:
                         "Cliente": nome_cliente.strip(), 
                         "Serviço": servico_final,
                         "Barbeiro": barbeiro, 
-                        "Pagamento": pagamento, 
+                        "Pagamento": pagamento if pagamento else "Não informado", 
                         "Valor (R$)": valor
                     })
-                    if "Pagamento" not in novo_agendamento:
-                        novo_agendamento["Pagamento"] = "Não informado"
-
-                    st.session_state.agendamentos.append(novo_agendamento)
                     st.success(f"Agendamento para {nome_cliente} às {horario} registrado!")
             
             st.markdown("---")
