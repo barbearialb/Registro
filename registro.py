@@ -45,7 +45,7 @@ def carregar_dados():
             df_ag['Pagamento'] = df_ag.get('Pagamento', 'Não informado')
             
             # Garantir que todas as colunas esperadas existam
-            expected_ag_cols = ['Data', 'Horário', 'Cliente', 'Serviço', 'Barbeiro', 'Pagamento', 'Valor (R$)']
+            expected_ag_cols = ['Data', 'Horário', 'Cliente', 'Serviço', 'Barbeiro', 'Pagamento', 'Valor 1 (R$)', 'Valor 2 (R$)', 'Valor (R$)']
             for col in expected_ag_cols:
                 if col not in df_ag.columns:
                     df_ag[col] = '' # Adiciona a coluna vazia se estiver faltando
@@ -294,14 +294,25 @@ else:
 
             registrar = st.button("Registrar Agendamento")
             if registrar:
+                valor_1_registrado = 0.0
+                valor_2_registrado = 0.0
+                valor_final = 0.0
+
+                if pagamento_combinado:
+                    valor_1_registrado = st.session_state.get('valor1', 0.0)
+                    valor_2_registrado = st.session_state.get('valor2', 0.0)
+                    valor_final = valor_1_registrado + valor_2_registrado
+                else:
+                    valor_final = st.session_state.get('valor', 0.0)
+
                 if opcao_barba == "Com Barba":
                     servico_final = f"{tipo_servico} com Barba"
                 else:
                     servico_final = tipo_servico
                 if not nome_cliente.strip():
                     st.error("O nome do cliente não pode estar vazio.")
-                elif valor <= 0:
-                    st.error("Valor deve ser maior que zero.")
+                elif valor_final <= 0:
+                    st.error("Valor Total deve ser maior que zero.")
                 elif agendamento_existe(st.session_state.agendamentos, data_selecionada, horario, barbeiro, servico_final):
                     st.warning("Já existe um agendamento neste horário com esse barbeiro.")
                 elif tipo_servico == "Barba" and opcao_barba == "Com Barba":
@@ -315,9 +326,15 @@ else:
                         "Serviço": servico_final,
                         "Barbeiro": barbeiro, 
                         "Pagamento": pagamento if pagamento else "Não informado", 
-                        "Valor (R$)": valor
+                        "Valor 1 (R$)": valor_1_registrado,
+                        "Valor 2 (R$)": valor_2_registrado,
+                        "Valor (R$)": valor_final
                     })
                     st.success(f"Agendamento para {nome_cliente} às {horario} registrado!")
+                    if 'valor1' in st.session_state: st.session_state.valor1 = 0.0
+                    if 'valor2' in st.session_state: st.session_state.valor2 = 0.0
+                    if 'valor' in st.session_state: st.session_state.valor = 0.0
+                    st.rerun()
             
             st.markdown("---")
 
@@ -334,21 +351,53 @@ else:
  
         
         # Iterar sobre os agendamentos e adicionar um botão de exclusão
+                (col_idx, col_horario, col_cliente, col_servico, col_barbeiro, col_pagamento, 
+                 col_v1, col_v2, col_valor, col_acao) = st.columns([0.4, 0.8, 1.8, 1.5, 1.2, 1, 0.8, 0.8, 0.8, 0.5])
+                with col_idx: st.markdown("**#**")
+                with col_horario: st.markdown("**Horário**")
+                with col_cliente: st.markdown("**Cliente**")
+                with col_servico: st.markdown("**Serviço**")
+                with col_barbeiro: st.markdown("**Barbeiro**")
+                with col_pagamento: st.markdown("**Pagamento**")
+                with col_v1: st.markdown("**Valor 1**")
+                with col_v2: st.markdown("**Valor 2**")
+                with col_valor: st.markdown("**Total**")
+                with col_acao: st.markdown("**Ação**")
+        
                 for i, agendamento in enumerate(agendamentos_para_mostrar):
-                    col_idx, col_horario, col_cliente, col_servico, col_barbeiro, col_pagamento, col_valor, col_acao = st.columns([0.5, 1, 2, 1.5, 1.5, 1, 1, 0.7])
-            
+                    (col_idx, col_horario, col_cliente, col_servico, col_barbeiro, col_pagamento, 
+                     col_v1, col_v2, col_valor, col_acao) = st.columns([0.4, 0.8, 1.8, 1.5, 1.2, 1, 0.8, 0.8, 0.8, 0.5])
                     with col_idx:
                         st.write(i + 1) # Número da linha
                     with col_horario:
-                        st.write(agendamento["Horário"])
+                        st.write(agendamento.get("Horário", ""))
                     with col_cliente:
-                        st.write(agendamento["Cliente"])
+                        st.write(agendamento.get("Cliente", ""))
                     with col_servico:
-                        st.write(agendamento["Serviço"])
+                        st.write(agendamento.get("Serviço", ""))
                     with col_barbeiro:
-                        st.write(agendamento["Barbeiro"])
+                        st.write(agendamento.get("Barbeiro", ""))
                     with col_pagamento:
-                        st.write(agendamento["Pagamento"])
+                        st.write(agendamento.get("Pagamento", ""))
+                    with col_v1:
+                        try:
+                            valor1 = float(agendamento.get('Valor 1 (R$)', 0) or 0)
+                            if valor1 > 0:
+                                st.write(f"R$ {valor1:.2f}")
+                            else:
+                                st.write("-") # Mostra um traço se não for pagamento combinado
+                        except (ValueError, TypeError):
+                            st.write("-")
+                    with col_v2:
+                        try:
+                            valor2 = float(agendamento.get('Valor 2 (R$)', 0) or 0)
+                            if valor2 > 0:
+                                st.write(f"R$ {valor2:.2f}")
+                            else:
+                                st.write("-")
+                        except (ValueError, TypeError):
+                            st.write("-")
+
                     with col_valor:
                         try:
                             valor = float(agendamento.get('Valor (R$)', 0) or 0)
@@ -357,11 +406,18 @@ else:
                         st.write(f"R$ {valor:.2f}")
                     with col_acao:
                         if st.button("🗑️", key=f"delete_ag_{i}_{agendamento['Cliente']}_{agendamento['Horário']}"):
-                            st.session_state.agendamentos.remove(agendamento)
-                            st.success(f"Agendamento de {agendamento['Cliente']} às {agendamento['Horário']} removido!")
-                            st.rerun() # Recarregar a página para atualizar a tabela        
-            else:
-                st.info("Nenhum agendamento para esta data.")
+                            # Precisamos encontrar o item original em st.session_state.agendamentos para remover
+                            # já que agendamentos_para_mostrar é uma cópia filtrada
+                            original_index_to_remove = None
+                            for idx, original_ag in enumerate(st.session_state.agendamentos):
+                                if original_ag == agendamento:
+                                    original_index_to_remove = idx
+                                    break
+                            
+                            if original_index_to_remove is not None:
+                                st.session_state.agendamentos.pop(original_index_to_remove)
+                                st.success(f"Agendamento de {agendamento['Cliente']} às {agendamento['Horário']} removido!")
+                                st.rerun()
                 
     with tab2:
         st.header(f"Saídas - {data_selecionada.strftime('%d/%m/%Y')}")
