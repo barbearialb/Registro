@@ -518,17 +518,17 @@ else:
             vendas_para_mostrar = list(vendas_do_dia) # Criar uma cópia para iterar
 
             # Cabeçalho da "tabela" manual para Vendas
-            col_idx, col_data, col_item, col_valor_venda, col_acao_venda = st.columns([0.5, 1, 2, 1, 1, 0.7])
+            col_idx, col_data, col_item, col_valor_venda, col_vendedor_header, col_acao_venda = st.columns([0.5, 1, 2, 1, 1, 0.7])
             with col_idx: st.markdown("**#**")
             with col_data: st.markdown("**Data**")
             with col_item: st.markdown("**Item**")
-            with col_vendedor_header: st.markdown("**Vendedor**")
             with col_valor_venda: st.markdown("**Valor (R$)**")
+            with col_vendedor_header: st.markdown("**Vendedor**")
             with col_acao_venda: st.markdown("**Excluir**")
 
             # Iterar sobre as vendas e adicionar um botão de exclusão
             for i, venda in enumerate(vendas_para_mostrar):
-                col_idx, col_data, col_item, col_valor_venda, col_acao_venda = st.columns([0.5, 1, 3, 1, 0.7])
+                col_idx, col_data, col_item, col_valor_venda, col_vendedor, col_acao_venda = st.columns([0.5, 1, 2, 1, 1, 0.7])
                 
                 with col_idx:
                     st.write(i + 1)
