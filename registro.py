@@ -357,7 +357,7 @@ else:
         
         # Iterar sobre os agendamentos e adicionar um botão de exclusão
                 (col_idx, col_horario, col_cliente, col_servico, col_barbeiro, col_pagamento, 
-                 col_v1, col_v2, col_valor, col_acao) = st.columns([0.4, 0.8, 1.8, 1.5, 1.2, 1, 0.8, 0.8, 0.8, 0.8])
+                 col_v1, col_v2, col_valor, col_acao) = st.columns([0.4, 0.8, 1.2, 1.3, 1.2, 1, 0.8, 0.8, 0.8, 0.8])
                 with col_idx: st.markdown("**#**")
                 with col_horario: st.markdown("**Horário**")
                 with col_cliente: st.markdown("**Cliente**")
@@ -367,7 +367,7 @@ else:
                 with col_v1: st.markdown("**Valor 1**")
                 with col_v2: st.markdown("**Valor 2**")
                 with col_valor: st.markdown("**Total**")
-                with col_acao: st.markdown("**Excuir**")
+                with col_acao: st.markdown("**Excluir**")
         
                 for i, agendamento in enumerate(agendamentos_para_mostrar):
                     (col_idx, col_horario, col_cliente, col_servico, col_barbeiro, col_pagamento, 
