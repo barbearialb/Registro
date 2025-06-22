@@ -260,7 +260,7 @@ else:
     st.title("Registro Diário da Barbearia Lucas Borges")
     st.markdown("---")
     opcoes_servicos = ["Degradê", "Pezim", "Barba", "Social", "Tradicional", "Visagismo", "Navalhado"]
-    opcoes_pagamento = ["Pix", "Dinheiro", "Cartão", "Dinheiro e Pix", "Cartão e Pix", "Cartão e Dinheiro"]
+    opcoes_pagamento = ["Dinheiro", "Pix", "Cartão", "Dinheiro e Pix", "Cartão e Pix", "Cartão e Dinheiro"]
     opcoes_barbeiros = ["Aluízio", "Lucas Borges", "Erik"]
     horarios_disponiveis = gerar_horarios(8, 22, 30)
     data_selecionada = st.date_input("Selecione a data", value=datetime.today().date(), format="DD/MM/YYYY")
@@ -367,7 +367,7 @@ else:
                 with col_v1: st.markdown("**Valor 1**")
                 with col_v2: st.markdown("**Valor 2**")
                 with col_valor: st.markdown("**Total**")
-                with col_acao: st.markdown("**Ação**")
+                with col_acao: st.markdown("**Excuir**")
         
                 for i, agendamento in enumerate(agendamentos_para_mostrar):
                     (col_idx, col_horario, col_cliente, col_servico, col_barbeiro, col_pagamento, 
@@ -423,6 +423,10 @@ else:
                                 st.session_state.agendamentos.pop(original_index_to_remove)
                                 st.success(f"Agendamento de {agendamento['Cliente']} às {agendamento['Horário']} removido!")
                                 st.rerun()
+            else:
+                st.info("Nenhum agendamento registrado para esta data")
+
+                        
                 
     with tab2:
         st.header(f"Saídas - {data_selecionada.strftime('%d/%m/%Y')}")
@@ -457,7 +461,7 @@ else:
            with col_data: st.markdown("**Data**")
            with col_descricao: st.markdown("**Descrição**")
            with col_valor_saida: st.markdown("**Valor (R$)**")
-           with col_acao_saida: st.markdown("**Ação**")
+           with col_acao_saida: st.markdown("**Excluir**")
            for i, saida in enumerate(saidas_para_mostrar):
                 col_idx, col_data, col_descricao, col_valor_saida, col_acao_saida = st.columns([0.5, 1, 3, 1, 0.7])
                 with col_idx:
@@ -519,7 +523,7 @@ else:
             with col_data: st.markdown("**Data**")
             with col_item: st.markdown("**Item**")
             with col_valor_venda: st.markdown("**Valor (R$)**")
-            with col_acao_venda: st.markdown("**Ação**")
+            with col_acao_venda: st.markdown("**Excluir**")
 
             # Iterar sobre as vendas e adicionar um botão de exclusão
             for i, venda in enumerate(vendas_para_mostrar):
