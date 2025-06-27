@@ -479,7 +479,7 @@ else:
                 with col_acao_saida:
                     if st.button("🗑️", key=f"delete_saida_{i}_{saida['Descrição']}_{saida['Data']}"):
                         st.session_state.saidas.remove(saida)
-                        st.success(f"Saída '{saida['Descrição']}' de R$ {saida['Valor (R$)']:.2f} removida!")
+                        st.success(f"Saída '{saida['Descrição']}' de R$ {valor_saida:.2f} removida!")
                         st.rerun() # Recarregar a página para atualizar a tabela
         else:
             st.info("Nenhuma saída registrada para esta data.")
