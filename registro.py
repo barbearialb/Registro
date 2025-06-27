@@ -472,7 +472,7 @@ else:
                     st.write(saida["Descrição"])
                 with col_valor_saida:
                     try:
-                        valor_saida = float(saida.get('Valor (R$)', 0) or 0)
+                        valor_saida = float(str(saida.get('Valor (R$)', 0)).strip().replace(',', '.'))
                     except (ValueError, TypeError):
                         valor_saida = 0.0
                     st.write(f"R$ {valor_saida:.2f}")
@@ -540,7 +540,7 @@ else:
                     st.write(venda.get("Vendedor", "-"))
                 with col_valor_venda:
                     try:
-                        valor_venda = float(venda.get('Valor (R$)', 0) or 0)
+                        valor_venda = float(str(venda.get('Valor (R$)', 0)).strip().replace(',', '.'))
                     except (ValueError, TypeError):
                         valor_venda = 0.0
                     st.write(f"R$ {valor_venda:.2f}")
