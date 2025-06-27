@@ -49,6 +49,13 @@ def carregar_dados():
             for col in expected_ag_cols:
                 if col not in df_ag.columns:
                     df_ag[col] = '' # Adiciona a coluna vazia se estiver faltando
+            # <<< CORREÇÃO: Converter todas as colunas de valor para numérico, tratando vírgulas >>>
+            valor_cols_ag = ['Valor (R$)', 'Valor 1 (R$)', 'Valor 2 (R$)']
+            for col in valor_cols_ag:
+                if col in df_ag.columns:
+                    # Substitui vírgula por ponto e converte para numérico
+                    df_ag[col] = df_ag[col].astype(str).str.replace(',', '.', regex=False).str.strip()
+                    df_ag[col] = pd.to_numeric(df_ag[col], errors='coerce').fillna(0.0)
 
         if 'Data' in df_ag.columns:
             df_ag['Data'] = df_ag['Data'].astype(str)
@@ -74,7 +81,10 @@ def carregar_dados():
             headers_sai = all_values_saidas[0]
             data_sai = all_values_saidas[1:]
             df_sai = pd.DataFrame(data_sai, columns=headers_sai)
-            df_sai['Valor (R$)'] = pd.to_numeric(df_sai['Valor (R$)'], errors='coerce').fillna(0.0)
+            # <<< CORREÇÃO: Substitui vírgula por ponto antes de converter para número >>>
+            if 'Valor (R$)' in df_sai.columns:
+                df_sai['Valor (R$)'] = df_sai['Valor (R$)'].astype(str).str.replace(',', '.', regex=False).str.strip()
+                df_sai['Valor (R$)'] = pd.to_numeric(df_sai['Valor (R$)'], errors='coerce').fillna(0.0)
             expected_sai_cols = ['Data', 'Descrição', 'Valor (R$)']
             for col in expected_sai_cols:
                 if col not in df_sai.columns:
@@ -93,7 +103,10 @@ def carregar_dados():
             headers_ven = all_values_vendas[0]
             data_ven = all_values_vendas[1:]
             df_ven = pd.DataFrame(data_ven, columns=headers_ven)
-            df_ven['Valor (R$)'] = pd.to_numeric(df_ven['Valor (R$)'], errors='coerce').fillna(0.0)
+            # <<< CORREÇÃO: Substitui vírgula por ponto antes de converter para número >>>
+            if 'Valor (R$)' in df_ven.columns:
+                df_ven['Valor (R$)'] = df_ven['Valor (R$)'].astype(str).str.replace(',', '.', regex=False).str.strip()
+                df_ven['Valor (R$)'] = pd.to_numeric(df_ven['Valor (R$)'], errors='coerce').fillna(0.0)
             expected_ven_cols = ['Data', 'Item', 'Valor (R$)']
             for col in expected_ven_cols:
                 if col not in df_ven.columns:
