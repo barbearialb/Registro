@@ -74,6 +74,7 @@ def carregar_dados():
             headers_sai = all_values_saidas[0]
             data_sai = all_values_saidas[1:]
             df_sai = pd.DataFrame(data_sai, columns=headers_sai)
+            df_sai['Valor (R$)'] = pd.to_numeric(df_sai['Valor (R$)'], errors='coerce').fillna(0.0)
             expected_sai_cols = ['Data', 'Descrição', 'Valor (R$)']
             for col in expected_sai_cols:
                 if col not in df_sai.columns:
@@ -92,6 +93,7 @@ def carregar_dados():
             headers_ven = all_values_vendas[0]
             data_ven = all_values_vendas[1:]
             df_ven = pd.DataFrame(data_ven, columns=headers_ven)
+            df_ven['Valor (R$)'] = pd.to_numeric(df_ven['Valor (R$)'], errors='coerce').fillna(0.0)
             expected_ven_cols = ['Data', 'Item', 'Valor (R$)']
             for col in expected_ven_cols:
                 if col not in df_ven.columns:
