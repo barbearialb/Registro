@@ -547,7 +547,7 @@ else:
                 with col_acao_venda:
                     if st.button("🗑️", key=f"delete_venda_{i}_{venda['Item']}_{venda['Data']}"):
                         st.session_state.vendas.remove(venda)
-                        st.success(f"Venda '{venda['Item']}' de R$ {venda['Valor (R$)']:.2f} removida!")
+                        st.success(f"Venda '{venda['Item']}' de R$ {valor_venda:.2f} removida!")
                         st.rerun()
         else:
             st.info("Nenhuma venda registrada para esta data.")
