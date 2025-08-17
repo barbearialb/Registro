@@ -337,13 +337,12 @@ else:
                     barbeiro = st.selectbox("Barbeiro", options=opcoes_barbeiros)
                 with col3:
                     pagamento = st.selectbox("Forma de Pagamento", options=opcoes_pagamento)
-                    pagamento_combinado = pagamento in ["Dinheiro e Pix", "Cartão e Pix", "Cartão e Dinheiro"]
-                    if pagamento_combinado:
-                        st.markdown("### Valores combinados:")
-                        primeiro_valor = st.number_input("Valor 1 (R$)", min_value=0.0, format="%.2f", key="valor1")
-                        segundo_valor = st.number_input("Valor 2 (R$)", min_value=0.0, format="%.2f", key="valor2")
-                    else:
-                        valor = st.number_input("Valor (R$)", min_value=0.0, format="%.2f", key="valor")
+                    st.info("Use 'Valor' para pagamentos simples. Para combinados, use 'Valor 1' e 'Valor 2'.")
+                    valor = st.number_input("Valor (R$)", help="Para pagamentos como Dinheiro, Pix ou Cartão.", min_value=0.0, format="%.2f")
+                    st.markdown("---") # Divisor visual
+                    primeiro_valor = st.number_input("Valor 1 (R$)", help="Primeira parte de um pagamento combinado.", min_value=0.0, format="%.2f")
+                    segundo_valor = st.number_input("Valor 2 (R$)", help="Segunda parte de um pagamento combinado.", min_value=0.0, format="%.2f")
+
 
                 registrar = st.form_submit_button("Registrar Agendamento")
 
@@ -634,6 +633,7 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
 
