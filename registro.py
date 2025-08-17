@@ -137,126 +137,33 @@ def carregar_dados():
             pd.DataFrame(columns=['Data', 'Item', 'Valor (R$)'])
         )
 
-def salvar_agendamento_unico(agendamento):
+def salvar_dados(agendamentos, saidas, vendas):
     try:
-        # Converte a data para string se for objeto date
-        if isinstance(agendamento["Data"], date):
-            agendamento["Data"] = agendamento["Data"].strftime('%Y-%m-%d')
-        
-        nova_linha = [
-            agendamento.get("Data", ""),
-            agendamento.get("Horário", ""),
-            agendamento.get("Cliente", ""),
-            agendamento.get("Serviço", ""),
-            agendamento.get("Barbeiro", ""),
-            agendamento.get("Pagamento", "Não informado"),
-            agendamento.get("Valor 1 (R$)", 0),
-            agendamento.get("Valor 2 (R$)", 0),
-            agendamento.get("Valor (R$)", 0)
-        ]
-        
-        ws_agendamentos.append_row(nova_linha, value_input_option="USER_ENTERED")
-        st.success("✅ Agendamento salvo direto na planilha!")
+        df_ag = pd.DataFrame(agendamentos)
+        df_sai = pd.DataFrame(saidas)
+        df_ven = pd.DataFrame(vendas)
+
+        if "Vendedor" not in df_ven.columns:
+            df_ven["Vendedor"] = ""
+        if 'Data' in df_ag.columns:
+            df_ag['Data'] = df_ag['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
+        if 'Data' in df_sai.columns:
+            df_sai['Data'] = df_sai['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
+        if 'Data' in df_ven.columns:
+            df_ven['Data'] = df_ven['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
+
+        ws_agendamentos.clear()
+        ws_agendamentos.update([df_ag.columns.values.tolist()] + df_ag.values.tolist())
+
+        ws_saidas.clear()
+        ws_saidas.update([df_sai.columns.values.tolist()] + df_sai.values.tolist())
+
+        ws_vendas.clear()
+        ws_vendas.update([df_ven.columns.values.tolist()] + df_ven.values.tolist())
+
+        st.sidebar.success("Dados salvos no Google Sheets com sucesso!")
     except Exception as e:
-        st.error(f"Erro ao salvar agendamento no Google Sheets: {e}")
-
-def salvar_saida_unica(saida):
-    try:
-        if isinstance(saida["Data"], date):
-            saida["Data"] = saida["Data"].strftime('%Y-%m-%d')
-
-        nova_linha = [
-            saida.get("Data", ""),
-            saida.get("Descrição", ""),
-            saida.get("Valor (R$)", 0)
-        ]
-        
-        ws_saidas.append_row(nova_linha, value_input_option="USER_ENTERED")
-        st.success("✅ Saída salva direto na planilha!")
-    except Exception as e:
-        st.error(f"Erro ao salvar saída no Google Sheets: {e}")
-        
-def salvar_venda_unica(venda):
-    try:
-        if isinstance(venda["Data"], date):
-            venda["Data"] = venda["Data"].strftime('%Y-%m-%d')
-
-        nova_linha = [
-            venda.get("Data", ""),
-            venda.get("Item", ""),
-            venda.get("Valor (R$)", 0),
-            venda.get("Vendedor", "")
-        ]
-        
-        ws_vendas.append_row(nova_linha, value_input_option="USER_ENTERED")
-        st.success("✅ Venda salva direto na planilha!")
-    except Exception as e:
-        st.error(f"Erro ao salvar venda no Google Sheets: {e}")
-def normalizar_texto(valor):
-    """Remove espaços extras e deixa em minúsculo para comparar textos."""
-    if valor is None:
-        return ""
-    return str(valor).strip().lower()
-
-
-def normalizar_valor(valor):
-    """Converte valor para float de forma segura."""
-    try:
-        return float(str(valor).replace(",", ".").strip())
-    except:
-        return 0.0
-
-
-def normalizar_data(valor):
-    """Converte data para string padrão YYYY-MM-DD."""
-    if isinstance(valor, date):
-        return valor.strftime('%Y-%m-%d')
-    try:
-        return str(pd.to_datetime(valor, errors="coerce").date())
-    except:
-        return str(valor).strip()
-
-def apagar_agendamento_planilha(agendamento):
-    try:
-        all_values = ws_agendamentos.get_all_values()
-        for i, row in enumerate(all_values[1:], start=2):
-            if (normalizar_data(row[0]) == normalizar_data(agendamento.get("Data"))) \
-               and normalizar_texto(row[1]) == normalizar_texto(agendamento.get("Horário")) \
-               and normalizar_texto(row[2]) == normalizar_texto(agendamento.get("Cliente")) \
-               and normalizar_texto(row[3]) == normalizar_texto(agendamento.get("Serviço")) \
-               and normalizar_texto(row[4]) == normalizar_texto(agendamento.get("Barbeiro")):
-                ws_agendamentos.delete_rows(i)
-                st.success(f"❌ Agendamento de {agendamento['Cliente']} às {agendamento['Horário']} apagado da planilha!")
-                return
-    except Exception as e:
-        st.error(f"Erro ao apagar agendamento do Google Sheets: {e}")
-        
-def apagar_saida_planilha(saida):
-    try:
-        all_values = ws_saidas.get_all_values()
-        for i, row in enumerate(all_values[1:], start=2):
-            if (normalizar_data(row[0]) == normalizar_data(saida.get("Data"))) \
-               and normalizar_texto(row[1]) == normalizar_texto(saida.get("Descrição")) \
-               and normalizar_valor(row[2]) == normalizar_valor(saida.get("Valor (R$)", 0)):
-                ws_saidas.delete_rows(i)
-                st.success(f"❌ Saída '{saida['Descrição']}' apagada da planilha!")
-                return
-    except Exception as e:
-        st.error(f"Erro ao apagar saída do Google Sheets: {e}")
-        
-def apagar_venda_planilha(venda):
-    try:
-        all_values = ws_vendas.get_all_values()
-        for i, row in enumerate(all_values[1:], start=2):
-            if (normalizar_data(row[0]) == normalizar_data(venda.get("Data"))) \
-               and normalizar_texto(row[1]) == normalizar_texto(venda.get("Item")) \
-               and normalizar_valor(row[2]) == normalizar_valor(venda.get("Valor (R$)", 0)) \
-               and normalizar_texto(row[3]) == normalizar_texto(venda.get("Vendedor")):
-                ws_vendas.delete_rows(i)
-                st.success(f"❌ Venda '{venda['Item']}' apagada da planilha!")
-                return
-    except Exception as e:
-        st.error(f"Erro ao apagar venda do Google Sheets: {e}")
+        st.sidebar.error(f"Erro ao salvar dados no Google Sheets: {e}")
 
 def gerar_horarios(inicio_hora, fim_hora, intervalo_min):
     horarios = []
@@ -272,20 +179,15 @@ def agendamento_existe(agendamentos, data, horario, barbeiro, novo_servico):
         ag for ag in agendamentos
         if ag["Data"] == data and ag["Horário"] == horario and ag["Barbeiro"] == barbeiro
     ]        
-
     if not agendamentos_mesmo_horario:
-        return False  # não existe conflito
-    
-    # Se já tem 1, só permite se ambos forem "pezim"
+        return False    
     if len(agendamentos_mesmo_horario) == 1:
         servico_existente = agendamentos_mesmo_horario[0]["Serviço"]
         if "Pezim" in servico_existente and "Pezim" in novo_servico:
-            return False  # permitido 2 pezim
-        else:
-            return True   # qualquer outro conflito bloqueia
-    
-    # Se já houver 2 ou mais, bloqueia sempre
-    return True
+            return False
+        if ("Pezim" in servico_existente and novo_servico != "Pezim") or ("Pezim" in novo_servico and servico_existente != "Pezim"):
+            return False
+    return True    
 
 # --- CONFIG PÁGINA ---
 st.set_page_config(
@@ -357,8 +259,13 @@ if not st.session_state.logged_in:
                 st.error("Usuário ou senha incorretos.")
 # ... o restante do código ...
 else:
+    # --- SIDEBAR ---
     st.sidebar.title("Painel de Controle")
     st.sidebar.markdown("---")
+    if st.sidebar.button("Salvar Agendamentos 📂", type="primary"):
+        salvar_dados(st.session_state.agendamentos, st.session_state.saidas, st.session_state.vendas)
+    st.sidebar.markdown("---")
+    st.sidebar.info("Lembre-se de salvar suas alterações antes de sair.")
     if st.sidebar.button("Sair 🔒"):
         st.session_state.logged_in = False
         st.session_state.dados_carregados = False
@@ -440,10 +347,6 @@ else:
                         "Valor (R$)": valor_final
                     })
                     st.success(f"Agendamento para {nome_cliente} às {horario} registrado!")
-                    salvar_agendamento_unico(st.session_state.agendamentos[-1])
-                    df_ag = carregar_dados()[0]
-                    st.session_state.agendamentos = df_ag.to_dict('records')
-                    st.rerun()
 
                     # CORREÇÃO: Deleta as chaves para resetar os campos de valor
                     keys_to_reset = ['valor1', 'valor2', 'valor']
@@ -533,13 +436,13 @@ else:
                             
                             if original_index_to_remove is not None:
                                 st.session_state.agendamentos.pop(original_index_to_remove)
-                                apagar_agendamento_planilha(agendamento)
                                 st.success(f"Agendamento de {agendamento['Cliente']} às {agendamento['Horário']} removido!")
                                 st.rerun()
-
             else:
                 st.info("Nenhum agendamento registrado para esta data")
 
+                        
+                
     with tab2:
         st.header(f"Saídas - {data_selecionada.strftime('%d/%m/%Y')}")
 
@@ -558,11 +461,6 @@ else:
                         "Data": data_selecionada, "Descrição": descricao_saida.strip(), "Valor (R$)": valor_saida
                     })
                     st.success(f"Saída de R$ {valor_saida:.2f} registrada!")
-                    salvar_saida_unica(st.session_state.saidas[-1])
-                    df_sai = carregar_dados()[1]
-                    st.session_state.saidas = df_sai.to_dict('records')
-                    st.rerun()
-                    
         st.markdown("---")
 
         # Exibir saídas do dia
@@ -596,7 +494,6 @@ else:
                 with col_acao_saida:
                     if st.button("🗑️", key=f"delete_saida_{i}_{saida['Descrição']}_{saida['Data']}"):
                         st.session_state.saidas.remove(saida)
-                        apagar_saida_planilha(saida)
                         st.success(f"Saída '{saida['Descrição']}' de R$ {valor_saida:.2f} removida!")
                         st.rerun() # Recarregar a página para atualizar a tabela
         else:
@@ -622,9 +519,6 @@ else:
                         "Data": data_selecionada, "Item": item_venda.strip(), "Valor (R$)": valor_venda, "Vendedor": vendedor
                     })
                     st.success(f"Venda de {item_venda} por R$ {valor_venda:.2f} registrada!")
-                    salvar_venda_unica(st.session_state.vendas[-1])
-                    df_ven = carregar_dados()[2]
-                    st.session_state.vendas = df_ven.to_dict('records')
 
         st.markdown("---")
 
@@ -668,7 +562,6 @@ else:
                 with col_acao_venda:
                     if st.button("🗑️", key=f"delete_venda_{i}_{venda['Item']}_{venda['Data']}"):
                         st.session_state.vendas.remove(venda)
-                        apagar_venda_planilha(venda)
                         st.success(f"Venda '{venda['Item']}' de R$ {valor_venda:.2f} removida!")
                         st.rerun()
         else:
@@ -698,7 +591,3 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
-
-
-
-
