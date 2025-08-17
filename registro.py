@@ -212,20 +212,23 @@ def gerar_horarios(inicio_hora, fim_hora, intervalo_min):
         current += pd.Timedelta(minutes=intervalo_min)
     return horarios
 
-def agendamento_existe(agendamentos, data, horario, barbeiro, novo_servico):
-    agendamentos_mesmo_horario = [
-        ag for ag in agendamentos
-        if ag["Data"] == data and ag["Horário"] == horario and ag["Barbeiro"] == barbeiro
-    ]        
-    if not agendamentos_mesmo_horario:
-        return False    
-    if len(agendamentos_mesmo_horario) == 1:
-        servico_existente = agendamentos_mesmo_horario[0]["Serviço"]
-        if "Pezim" in servico_existente and "Pezim" in novo_servico:
-            return False
-        if ("Pezim" in servico_existente and novo_servico != "Pezim") or ("Pezim" in novo_servico and servico_existente != "Pezim"):
-            return False
-    return True    
+# Versão CORRIGIDA
+def agendamento_existe(agendamentos, data, horario, barbeiro):
+    """Verifica se já existe um agendamento para o mesmo barbeiro no mesmo dia e horário."""
+    for ag in agendamentos:
+        # Garante que a comparação de datas funcione corretamente
+        ag_data = ag.get("Data")
+        if isinstance(ag_data, str):
+            try:
+                ag_data = datetime.strptime(ag_data, '%Y-%m-%d').date()
+            except ValueError:
+                continue # Pula registros com formato de data inválido
+
+        if (ag_data == data and
+            ag.get("Horário") == horario and
+            ag.get("Barbeiro") == barbeiro):
+            return True # Conflito encontrado!
+    return False # Horário livre  
 
 # --- CONFIG PÁGINA ---
 st.set_page_config(
@@ -366,6 +369,8 @@ else:
                         st.error("O nome do cliente não pode estar vazio.")
                     elif valor_final <= 0:
                         st.error("O valor total deve ser maior que zero.")
+                    elif agendamento_existe(st.session_state.agendamentos, data_selecionada, horario, barbeiro):
+                        st.warning("Este barbeiro já possui um agendamento neste horário.")
                     else:
                         # O resto do código continua como antes, mas agora com os valores corretos
                         if opcao_barba == "Com Barba":
@@ -627,3 +632,4 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
