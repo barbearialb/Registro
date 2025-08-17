@@ -288,71 +288,65 @@ else:
         st.header(f"Agendamentos - {data_selecionada.strftime('%d/%m/%Y')}")
 
         with st.expander("➕ Registrar Novo Agendamento"):
-            with st.form(key="form_agendamento", clear_on_submit=True):
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    nome_cliente = st.text_input("Nome do Cliente")
-                    tipo_servico = st.selectbox("Tipo de Serviço", options=opcoes_servicos)
-                    opcao_barba = st.selectbox("Barba", options=["Sem Barba", "Com Barba"])
-                with col2:
-                    horario = st.selectbox("Horário", options=horarios_disponiveis)
-                    barbeiro = st.selectbox("Barbeiro", options=opcoes_barbeiros)
-                with col3:
-                    pagamento = st.selectbox("Forma de Pagamento", options=opcoes_pagamento)
-                    pagamento_combinado = pagamento in ["Dinheiro e Pix", "Cartão e Pix", "Cartão e Dinheiro"]
-                    if pagamento_combinado:
-                        st.markdown("### Valores combinados:")
-                        primeiro_valor = st.number_input("Valor 1 (R$)", min_value=0.0, format="%.2f", key="valor1")
-                        segundo_valor = st.number_input("Valor 2 (R$)", min_value=0.0, format="%.2f", key="valor2")
-                    else:
-                        valor = st.number_input("Valor (R$)", min_value=0.0, format="%.2f", key="valor")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                nome_cliente = st.text_input("Nome do Cliente")
+                tipo_servico = st.selectbox("Tipo de Serviço", options=opcoes_servicos)
+                opcao_barba = st.selectbox("Barba", options=["Sem Barba", "Com Barba"])
+            with col2:
+                horario = st.selectbox("Horário", options=horarios_disponiveis)
+                barbeiro = st.selectbox("Barbeiro", options=opcoes_barbeiros)
+            with col3:
+                pagamento = st.selectbox("Forma de Pagamento", options=opcoes_pagamento)
+                pagamento_combinado = pagamento in ["Dinheiro e Pix", "Cartão e Pix", "Cartão e Dinheiro"]
+                if pagamento_combinado:
+                    st.markdown("### Valores combinados:")
+                    primeiro_valor = st.number_input("Valor 1 (R$)", min_value=0.0, format="%.2f", key="valor1")
+                    segundo_valor = st.number_input("Valor 2 (R$)", min_value=0.0, format="%.2f", key="valor2")
+                else:
+                    valor = st.number_input("Valor (R$)", min_value=0.0, format="%.2f", key="valor")
 
-                registrar = st.form_submit_button("Registrar Agendamento")
-                    if registrar:
-                        valor_1_registrado = 0.0
-                        valor_2_registrado = 0.0
-                        valor_final = 0.0
+            registrar = st.button("Registrar Agendamento")
+            if registrar:
+                valor_1_registrado = 0.0
+                valor_2_registrado = 0.0
+                valor_final = 0.0
 
-                    if pagamento_combinado:
+                if pagamento_combinado:
                     # CORREÇÃO: Lê os valores do session_state
-                        valor_1_registrado = st.session_state.get('valor1', 0.0)
-                        valor_2_registrado = st.session_state.get('valor2', 0.0)
-                        valor_final = valor_1_registrado + valor_2_registrado
-                    else:
+                    valor_1_registrado = st.session_state.get('valor1', 0.0)
+                    valor_2_registrado = st.session_state.get('valor2', 0.0)
+                    valor_final = valor_1_registrado + valor_2_registrado
+                else:
                     # CORREÇÃO: Lê o valor do session_state usando a chave correta
-                        valor_final = st.session_state.get('valor', 0.0)
+                    valor_final = st.session_state.get('valor', 0.0)
 
-                    if opcao_barba == "Com Barba":
-                        servico_final = f"{tipo_servico} com Barba"
-                    else:
-                        servico_final = tipo_servico
+                if opcao_barba == "Com Barba":
+                    servico_final = f"{tipo_servico} com Barba"
+                else:
+                    servico_final = tipo_servico
 
-                    if not nome_cliente.strip():
-                        st.error("O nome do cliente não pode estar vazio.")
-                    elif valor_final <= 0:
-                        st.error("O valor total deve ser maior que zero.")
-                    except Exception as e:
-                        st.error(f"Ocorreu um erro ao salvar na planilha: {e}")
-                        # Se deu erro ao salvar, remove da memória também
-                        st.session_state.agendamentos.pop()
-                    elif agendamento_existe(st.session_state.agendamentos, data_selecionada, horario, barbeiro, servico_final):
-                        st.warning("Já existe um agendamento neste horário com esse barbeiro.")
-                    elif tipo_servico == "Barba" and opcao_barba == "Com Barba":
-                        st.error("Não faz sentido agendar 'Barba com Barba'. Por favor, ajuste sua seleção.")
-                    else:
-                        st.session_state.agendamentos.append({
-                            "Data": data_selecionada,
-                            "Horário": horario,
-                            "Cliente": nome_cliente.strip(),
-                            "Serviço": servico_final,
-                            "Barbeiro": barbeiro,
-                            "Pagamento": pagamento if pagamento else "Não informado",
-                            "Valor 1 (R$)": valor_1_registrado,
-                            "Valor 2 (R$)": valor_2_registrado,
-                            "Valor (R$)": valor_final
-                        })
-                        st.success(f"Agendamento para {nome_cliente} às {horario} registrado!")
-                        st.rerun()
+                if not nome_cliente.strip():
+                    st.error("O nome do cliente não pode estar vazio.")
+                elif valor_final <= 0:
+                    st.error("O valor total deve ser maior que zero.")
+                elif agendamento_existe(st.session_state.agendamentos, data_selecionada, horario, barbeiro, servico_final):
+                    st.warning("Já existe um agendamento neste horário com esse barbeiro.")
+                elif tipo_servico == "Barba" and opcao_barba == "Com Barba":
+                    st.error("Não faz sentido agendar 'Barba com Barba'. Por favor, ajuste sua seleção.")
+                else:
+                    st.session_state.agendamentos.append({
+                        "Data": data_selecionada,
+                        "Horário": horario,
+                        "Cliente": nome_cliente.strip(),
+                        "Serviço": servico_final,
+                        "Barbeiro": barbeiro,
+                        "Pagamento": pagamento if pagamento else "Não informado",
+                        "Valor 1 (R$)": valor_1_registrado,
+                        "Valor 2 (R$)": valor_2_registrado,
+                        "Valor (R$)": valor_final
+                    })
+                    st.success(f"Agendamento para {nome_cliente} às {horario} registrado!")
 
                     # CORREÇÃO: Deleta as chaves para resetar os campos de valor
                     keys_to_reset = ['valor1', 'valor2', 'valor']
@@ -453,22 +447,20 @@ else:
         st.header(f"Saídas - {data_selecionada.strftime('%d/%m/%Y')}")
 
         with st.expander("➕ Registrar Nova Saída"):
-            with st.form(key="form_saida", clear_on_submit=True):
-                descricao_saida = st.text_input("Descrição da Saída")
-                valor_saida = st.number_input("Valor da Saída (R$)", min_value=0.0, format="%.2f", key="valor_saida")
-                registrar_saida = st.form_submit_button("Registrar Saída")
+            descricao_saida = st.text_input("Descrição da Saída")
+            valor_saida = st.number_input("Valor da Saída (R$)", min_value=0.0, format="%.2f", key="valor_saida")
+            registrar_saida = st.button("Registrar Saída", key="btn_registrar_saida")
 
-                if registrar_saida:
-                    if not descricao_saida.strip():
-                        st.error("A descrição da saída não pode estar vazia.")
-                    elif valor_saida <= 0:
-                        st.error("O valor da saída deve ser maior que zero.")
-                    else:
-                        st.session_state.saidas.append({
-                            "Data": data_selecionada, "Descrição": descricao_saida.strip(), "Valor (R$)": valor_saida
-                        })
-                        st.success(f"Saída de R$ {valor_saida:.2f} registrada!")
-                        st.rerun()
+            if registrar_saida:
+                if not descricao_saida.strip():
+                    st.error("A descrição da saída não pode estar vazia.")
+                elif valor_saida <= 0:
+                    st.error("O valor da saída deve ser maior que zero.")
+                else:
+                    st.session_state.saidas.append({
+                        "Data": data_selecionada, "Descrição": descricao_saida.strip(), "Valor (R$)": valor_saida
+                    })
+                    st.success(f"Saída de R$ {valor_saida:.2f} registrada!")
         st.markdown("---")
 
         # Exibir saídas do dia
@@ -510,24 +502,23 @@ else:
     # --- VENDAS ---
     with tab3:
         st.header(f"Vendas - {data_selecionada.strftime('%d/%m/%Y')}")
-        with st.expander("➕ Registrar Nova Venda"):
-            with st.form(key="form_venda", clear_on_submit=True):
-                item_venda = st.text_input("Item Vendido")
-                valor_venda = st.number_input("Valor da Venda (R$)", min_value=0.0, format="%.2f", key="valor_venda")
-                vendedor = st.selectbox("Vendedor Responsável", ["Lucas Borges", "Aluízio", "Erik", "Maria"], key="vendedor")
-                registrar_venda = st.form_submit_button("Registrar Venda")
 
-                if registrar_venda:
-                    if not item_venda.strip():
-                        st.error("O item vendido não pode estar vazio.")
-                    elif valor_venda <= 0:
-                        st.error("O valor da venda deve ser maior que zero.")
-                    else:
-                        st.session_state.vendas.append({
-                            "Data": data_selecionada, "Item": item_venda.strip(), "Valor (R$)": valor_venda, "Vendedor": vendedor
-                        })
-                        st.success(f"Venda de {item_venda} por R$ {valor_venda:.2f} registrada!")
-                        st.rerun()
+        with st.expander("➕ Registrar Nova Venda"):
+            item_venda = st.text_input("Item Vendido")
+            valor_venda = st.number_input("Valor da Venda (R$)", min_value=0.0, format="%.2f", key="valor_venda")
+            vendedor = st.selectbox("Vendedor Responsável", ["Lucas Borges", "Aluízio", "Erik", "Maria"], key="vendedor")
+            registrar_venda = st.button("Registrar Venda", key="btn_registrar_venda")
+
+            if registrar_venda:
+                if not item_venda.strip():
+                    st.error("O item vendido não pode estar vazio.")
+                elif valor_venda <= 0:
+                    st.error("O valor da venda deve ser maior que zero.")
+                else:
+                    st.session_state.vendas.append({
+                        "Data": data_selecionada, "Item": item_venda.strip(), "Valor (R$)": valor_venda, "Vendedor": vendedor
+                    })
+                    st.success(f"Venda de {item_venda} por R$ {valor_venda:.2f} registrada!")
 
         st.markdown("---")
 
@@ -600,5 +591,3 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
-
-
