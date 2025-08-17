@@ -340,8 +340,8 @@ else:
                     pagamento_combinado = pagamento in ["Dinheiro e Pix", "Cartão e Pix", "Cartão e Dinheiro"]
                     if pagamento_combinado:
                         st.markdown("### Valores combinados:")
-                        primeiro_valor = st.number_input("Valor 1 (R$)", min_value=0.0, format="%.2f")
-                        segundo_valor = st.number_input("Valor 2 (R$)", min_value=0.0, format="%.2f")
+                        primeiro_valor = st.number_input("Valor 1 (R$)", min_value=0.0, format="%.2f", key="valor1")
+                        segundo_valor = st.number_input("Valor 2 (R$)", min_value=0.0, format="%.2f", key="valor2")
                     else:
                         valor = st.number_input("Valor (R$)", min_value=0.0, format="%.2f", key="valor")
 
@@ -634,6 +634,7 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
 
