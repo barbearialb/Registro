@@ -139,28 +139,69 @@ def carregar_dados():
 
 def salvar_dados(agendamentos, saidas, vendas):
     try:
+        # 1. Converte os dados da sessão atual para DataFrames
         df_ag = pd.DataFrame(agendamentos)
         df_sai = pd.DataFrame(saidas)
         df_ven = pd.DataFrame(vendas)
 
+        # --- TRAVA DE SEGURANÇA ---
+        # A lógica a seguir previne que um estado vazio no app apague dados existentes na planilha.
+        
+        # Verificação para Agendamentos
+        if df_ag.empty and len(ws_agendamentos.get_all_values()) > 1:
+            st.sidebar.error("SALVAMENTO CANCELADO: O app não possui dados de agendamento, mas a planilha online sim. A operação foi bloqueada para evitar perda de dados.")
+            return # Interrompe a função completamente para proteger os dados
+
+        # Verificação para Saídas
+        if df_sai.empty and len(ws_saidas.get_all_values()) > 1:
+            st.sidebar.error("SALVAMENTO CANCELADO: O app não possui dados de saídas, mas a planilha online sim. A operação foi bloqueada para evitar perda de dados.")
+            return # Interrompe a função completamente
+
+        # Verificação para Vendas
+        if df_ven.empty and len(ws_vendas.get_all_values()) > 1:
+            st.sidebar.error("SALVAMENTO CANCELADO: O app não possui dados de vendas, mas a planilha online sim. A operação foi bloqueada para evitar perda de dados.")
+            return # Interrompe a função completamente
+
+        # --- Se todas as verificações de segurança passarem, o processo de salvamento continua ---
+        
+        # 2. Formata os dados antes de salvar
         if "Vendedor" not in df_ven.columns:
             df_ven["Vendedor"] = ""
-
-        if 'Data' in df_ag.columns:
+        if 'Data' in df_ag.columns and not df_ag.empty:
             df_ag['Data'] = df_ag['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
-        if 'Data' in df_sai.columns:
+        if 'Data' in df_sai.columns and not df_sai.empty:
             df_sai['Data'] = df_sai['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
-        if 'Data' in df_ven.columns:
+        if 'Data' in df_ven.columns and not df_ven.empty:
             df_ven['Data'] = df_ven['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
 
-        # Agora só atualiza os dados, sem apagar a planilha
-        ws_agendamentos.update([df_ag.columns.values.tolist()] + df_ag.values.tolist())
-        ws_saidas.update([df_sai.columns.values.tolist()] + df_sai.values.tolist())
-        ws_vendas.update([df_ven.columns.values.tolist()] + df_ven.values.tolist())
+        # 3. Limpa e atualiza as planilhas de forma segura
+        # Agendamentos
+        ws_agendamentos.clear()
+        if not df_ag.empty:
+            ws_agendamentos.update([df_ag.columns.values.tolist()] + df_ag.values.tolist())
+        else: # Se o DataFrame estiver vazio (porque o usuário realmente apagou tudo), escreve só o cabeçalho
+            ws_agendamentos.update([['Data', 'Horário', 'Cliente', 'Serviço', 'Barbeiro', 'Pagamento', 'Valor 1 (R$)', 'Valor 2 (R$)', 'Valor (R$)']])
 
-        st.sidebar.success("✅ Dados atualizados no Google Sheets!")
+        # Saídas
+        ws_saidas.clear()
+        if not df_sai.empty:
+            ws_saidas.update([df_sai.columns.values.tolist()] + df_sai.values.tolist())
+        else:
+            ws_saidas.update([['Data', 'Descrição', 'Valor (R$)']])
+
+        # Vendas
+        ws_vendas.clear()
+        if not df_ven.empty:
+            ws_vendas.update([df_ven.columns.values.tolist()] + df_ven.values.tolist())
+        else:
+            ws_vendas.update([['Data', 'Item', 'Valor (R$)', 'Vendedor']])
+
+        st.sidebar.success("Dados salvos no Google Sheets com sucesso!")
+        
+    except gspread.exceptions.APIError as e:
+        st.sidebar.error(f"Erro de API do Google: {e}. Verifique as permissões da planilha.")
     except Exception as e:
-        st.sidebar.error(f"Erro ao salvar dados no Google Sheets: {e}")
+        st.sidebar.error(f"Ocorreu um erro inesperado ao salvar: {e}")
 
 def gerar_horarios(inicio_hora, fim_hora, intervalo_min):
     horarios = []
@@ -588,4 +629,5 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
