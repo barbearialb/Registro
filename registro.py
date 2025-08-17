@@ -344,10 +344,10 @@ else:
                     
                     st.info("Use 'Valor' para pagamentos simples. Para combinados, use 'Valor 1' e 'Valor 2'.")
                     # Damos 'keys' para ler os valores de forma segura
-                    valor = st.number_input("Valor (R$)", min_value=0.0, format="%.2f", key="valor_unico")
+                    valor = st.number_input("Valor (R$)", min_value=0.0, format="%.2f", key="valor_unico", placeholder="Digite o valor")
                     st.markdown("---")
-                    primeiro_valor = st.number_input("Valor 1 (R$)", min_value=0.0, format="%.2f", key="valor_p1")
-                    segundo_valor = st.number_input("Valor 2 (R$)", min_value=0.0, format="%.2f", key="valor_p2")
+                    primeiro_valor = st.number_input("Valor 1 (R$)", min_value=0.0, format="%.2f", key="valor_p1", placeholder="Digite o valor")
+                    segundo_valor = st.number_input("Valor 2 (R$)", min_value=0.0, format="%.2f", key="valor_p2", placeholder="Digite o valor")
 
                 registrar = st.form_submit_button("Registrar Agendamento")
 
@@ -361,9 +361,10 @@ else:
 
                     valor_final = 0.0
                     if pagamento_combinado:
-                        valor_final = valor1_lido + valor2_lido
+                        valor_final =(float(valor1_lido) if valor1_lido is not None else 0.0) + \
+                                      (float(valor2_lido) if valor2_lido is not None else 0.0)
                     else:
-                        valor_final = valor_lido
+                        valor_final = float(valor_lido) if valor_lido is not None else 0.0
 
                     if not nome_cliente.strip():
                         st.error("O nome do cliente não pode estar vazio.")
@@ -487,11 +488,12 @@ else:
         with st.expander("➕ Registrar Nova Saída"):
             with st.form("form_saida", clear_on_submit=True):
                 descricao_saida = st.text_input("Descrição da Saída")
-                valor_saida = st.number_input("Valor da Saída (R$)", min_value=0.0, format="%.2f", key="valor_saida")
+                valor_saida = st.number_input("Valor da Saída (R$)", min_value=0.0, format="%.2f", placeholder="Digite o valor")
                 
                 registrar_saida = st.form_submit_button("Registrar Saída")
 
                 if registrar_saida:
+                    valor_final_saida = float(valor_saida) if valor_saida is not None else 0.0
                     if not descricao_saida.strip():
                         st.error("A descrição da saída não pode estar vazia.")
                     elif valor_saida <= 0:
@@ -546,11 +548,12 @@ else:
         with st.expander("➕ Registrar Nova Venda"):
             with st.form("form_venda", clear_on_submit=True):
                 item_venda = st.text_input("Item Vendido")
-                valor_venda = st.number_input("Valor da Venda (R$)", min_value=0.0, format="%.2f", key="valor_venda")
+                valor_venda = st.number_input("Valor da Venda (R$)", min_value=0.0, format="%.2f", placeholder="Digite o valor")
                 vendedor = st.selectbox("Vendedor Responsável", ["Lucas Borges", "Aluízio", "Erik", "Maria"], key="vendedor")
                 registrar_venda = st.form_submit_button("Registrar Venda")
 
                 if registrar_venda:
+                    valor_final_venda = float(valor_venda) if valor_venda is not None else 0.0
                     if not item_venda.strip():
                         st.error("O item vendido não pode estar vazio.")
                     elif valor_venda <= 0:
@@ -632,4 +635,5 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
