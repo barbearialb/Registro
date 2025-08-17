@@ -347,6 +347,7 @@ else:
                 registrar = st.form_submit_button("Registrar Agendamento")
 
                 if registrar:
+                    pagamento_combinado = pagamento in ["Dinheiro e Pix", "Cartão e Pix", "Cartão e Dinheiro"]
                     valor_1_registrado = 0.0
                     valor_2_registrado = 0.0
                     valor_final = 0.0
@@ -633,6 +634,7 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
 
