@@ -308,47 +308,51 @@ else:
                         valor = st.number_input("Valor (R$)", min_value=0.0, format="%.2f", key="valor")
 
                 registrar = st.form_submit_button("Registrar Agendamento")
-                if registrar:
-                    valor_1_registrado = 0.0
-                    valor_2_registrado = 0.0
-                    valor_final = 0.0
+                    if registrar:
+                        valor_1_registrado = 0.0
+                        valor_2_registrado = 0.0
+                        valor_final = 0.0
 
-                if pagamento_combinado:
+                    if pagamento_combinado:
                     # CORREÇÃO: Lê os valores do session_state
-                    valor_1_registrado = st.session_state.get('valor1', 0.0)
-                    valor_2_registrado = st.session_state.get('valor2', 0.0)
-                    valor_final = valor_1_registrado + valor_2_registrado
-                else:
+                        valor_1_registrado = st.session_state.get('valor1', 0.0)
+                        valor_2_registrado = st.session_state.get('valor2', 0.0)
+                        valor_final = valor_1_registrado + valor_2_registrado
+                    else:
                     # CORREÇÃO: Lê o valor do session_state usando a chave correta
-                    valor_final = st.session_state.get('valor', 0.0)
+                        valor_final = st.session_state.get('valor', 0.0)
 
-                if opcao_barba == "Com Barba":
-                    servico_final = f"{tipo_servico} com Barba"
-                else:
-                    servico_final = tipo_servico
+                    if opcao_barba == "Com Barba":
+                        servico_final = f"{tipo_servico} com Barba"
+                    else:
+                        servico_final = tipo_servico
 
-                if not nome_cliente.strip():
-                    st.error("O nome do cliente não pode estar vazio.")
-                elif valor_final <= 0:
-                    st.error("O valor total deve ser maior que zero.")
-                elif agendamento_existe(st.session_state.agendamentos, data_selecionada, horario, barbeiro, servico_final):
-                    st.warning("Já existe um agendamento neste horário com esse barbeiro.")
-                elif tipo_servico == "Barba" and opcao_barba == "Com Barba":
-                    st.error("Não faz sentido agendar 'Barba com Barba'. Por favor, ajuste sua seleção.")
-                else:
-                    st.session_state.agendamentos.append({
-                        "Data": data_selecionada,
-                        "Horário": horario,
-                        "Cliente": nome_cliente.strip(),
-                        "Serviço": servico_final,
-                        "Barbeiro": barbeiro,
-                        "Pagamento": pagamento if pagamento else "Não informado",
-                        "Valor 1 (R$)": valor_1_registrado,
-                        "Valor 2 (R$)": valor_2_registrado,
-                        "Valor (R$)": valor_final
-                    })
-                    st.success(f"Agendamento para {nome_cliente} às {horario} registrado!")
-                    st.rerun()
+                    if not nome_cliente.strip():
+                        st.error("O nome do cliente não pode estar vazio.")
+                    elif valor_final <= 0:
+                        st.error("O valor total deve ser maior que zero.")
+                    except Exception as e:
+                        st.error(f"Ocorreu um erro ao salvar na planilha: {e}")
+                        # Se deu erro ao salvar, remove da memória também
+                        st.session_state.agendamentos.pop()
+                    elif agendamento_existe(st.session_state.agendamentos, data_selecionada, horario, barbeiro, servico_final):
+                        st.warning("Já existe um agendamento neste horário com esse barbeiro.")
+                    elif tipo_servico == "Barba" and opcao_barba == "Com Barba":
+                        st.error("Não faz sentido agendar 'Barba com Barba'. Por favor, ajuste sua seleção.")
+                    else:
+                        st.session_state.agendamentos.append({
+                            "Data": data_selecionada,
+                            "Horário": horario,
+                            "Cliente": nome_cliente.strip(),
+                            "Serviço": servico_final,
+                            "Barbeiro": barbeiro,
+                            "Pagamento": pagamento if pagamento else "Não informado",
+                            "Valor 1 (R$)": valor_1_registrado,
+                            "Valor 2 (R$)": valor_2_registrado,
+                            "Valor (R$)": valor_final
+                        })
+                        st.success(f"Agendamento para {nome_cliente} às {horario} registrado!")
+                        st.rerun()
 
                     # CORREÇÃO: Deleta as chaves para resetar os campos de valor
                     keys_to_reset = ['valor1', 'valor2', 'valor']
@@ -596,4 +600,5 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
