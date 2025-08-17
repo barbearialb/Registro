@@ -344,10 +344,10 @@ else:
                     
                     st.info("Use 'Valor' para pagamentos simples. Para combinados, use 'Valor 1' e 'Valor 2'.")
                     # Damos 'keys' para ler os valores de forma segura
-                    valor = st.number_input("Valor (R$)", min_value=0.0, format="%.2f", key="valor_unico", placeholder="Digite o valor")
+                    valor = st.number_input("Valor (R$)", value=None, min_value=0.0, format="%.2f", key="valor_unico", placeholder="Digite o valor")
                     st.markdown("---")
-                    primeiro_valor = st.number_input("Valor 1 (R$)", min_value=0.0, format="%.2f", key="valor_p1", placeholder="Digite o valor")
-                    segundo_valor = st.number_input("Valor 2 (R$)", min_value=0.0, format="%.2f", key="valor_p2", placeholder="Digite o valor")
+                    primeiro_valor = st.number_input("Valor 1 (R$)", value=None, min_value=0.0, format="%.2f", key="valor_p1", placeholder="Digite o valor")
+                    segundo_valor = st.number_input("Valor 2 (R$)", value=None, min_value=0.0, format="%.2f", key="valor_p2", placeholder="Digite o valor")
 
                 registrar = st.form_submit_button("Registrar Agendamento")
 
@@ -488,7 +488,7 @@ else:
         with st.expander("➕ Registrar Nova Saída"):
             with st.form("form_saida", clear_on_submit=True):
                 descricao_saida = st.text_input("Descrição da Saída")
-                valor_saida = st.number_input("Valor da Saída (R$)", min_value=0.0, format="%.2f", placeholder="Digite o valor")
+                valor_saida = st.number_input("Valor da Saída (R$)", value=None, min_value=0.0, format="%.2f", placeholder="Digite o valor")
                 
                 registrar_saida = st.form_submit_button("Registrar Saída")
 
@@ -548,7 +548,7 @@ else:
         with st.expander("➕ Registrar Nova Venda"):
             with st.form("form_venda", clear_on_submit=True):
                 item_venda = st.text_input("Item Vendido")
-                valor_venda = st.number_input("Valor da Venda (R$)", min_value=0.0, format="%.2f", placeholder="Digite o valor")
+                valor_venda = st.number_input("Valor da Venda (R$)", value=None, min_value=0.0, format="%.2f", placeholder="Digite o valor")
                 vendedor = st.selectbox("Vendedor Responsável", ["Lucas Borges", "Aluízio", "Erik", "Maria"], key="vendedor")
                 registrar_venda = st.form_submit_button("Registrar Venda")
 
@@ -635,5 +635,6 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
