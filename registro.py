@@ -441,10 +441,8 @@ else:
                     })
                     st.success(f"Agendamento para {nome_cliente} às {horario} registrado!")
                     salvar_agendamento_unico(st.session_state.agendamentos[-1])
-                    df_ag, df_sai, df_ven = carregar_dados()
+                    df_ag = carregar_dados()[0]
                     st.session_state.agendamentos = df_ag.to_dict('records')
-                    st.session_state.saidas = df_sai.to_dict('records')
-                    st.session_state.vendas = df_ven.to_dict('records')
                     st.rerun()
 
                     # CORREÇÃO: Deleta as chaves para resetar os campos de valor
@@ -561,6 +559,10 @@ else:
                     })
                     st.success(f"Saída de R$ {valor_saida:.2f} registrada!")
                     salvar_saida_unica(st.session_state.saidas[-1])
+                    df_sai = carregar_dados()[1]
+                    st.session_state.saidas = df_sai.to_dict('records')
+                    st.rerun()
+                    
         st.markdown("---")
 
         # Exibir saídas do dia
@@ -621,6 +623,8 @@ else:
                     })
                     st.success(f"Venda de {item_venda} por R$ {valor_venda:.2f} registrada!")
                     salvar_venda_unica(st.session_state.vendas[-1])
+                    df_ven = carregar_dados()[2]
+                    st.session_state.vendas = df_ven.to_dict('records')
 
         st.markdown("---")
 
@@ -694,6 +698,7 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
 
