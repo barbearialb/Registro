@@ -192,16 +192,39 @@ def salvar_venda_unica(venda):
         st.success("✅ Venda salva direto na planilha!")
     except Exception as e:
         st.error(f"Erro ao salvar venda no Google Sheets: {e}")
+def normalizar_texto(valor):
+    """Remove espaços extras e deixa em minúsculo para comparar textos."""
+    if valor is None:
+        return ""
+    return str(valor).strip().lower()
+
+
+def normalizar_valor(valor):
+    """Converte valor para float de forma segura."""
+    try:
+        return float(str(valor).replace(",", ".").strip())
+    except:
+        return 0.0
+
+
+def normalizar_data(valor):
+    """Converte data para string padrão YYYY-MM-DD."""
+    if isinstance(valor, date):
+        return valor.strftime('%Y-%m-%d')
+    try:
+        return str(pd.to_datetime(valor, errors="coerce").date())
+    except:
+        return str(valor).strip()
+
 def apagar_agendamento_planilha(agendamento):
     try:
         all_values = ws_agendamentos.get_all_values()
-        # percorre todas as linhas a partir da 2 (linha 1 é cabeçalho)
         for i, row in enumerate(all_values[1:], start=2):
-            if (row[0] == agendamento.get("Data").strftime('%Y-%m-%d') if isinstance(agendamento.get("Data"), date) else str(agendamento.get("Data"))) \
-               and row[1] == agendamento.get("Horário", "") \
-               and row[2] == agendamento.get("Cliente", "") \
-               and row[3] == agendamento.get("Serviço", "") \
-               and row[4] == agendamento.get("Barbeiro", ""):
+            if (normalizar_data(row[0]) == normalizar_data(agendamento.get("Data"))) \
+               and normalizar_texto(row[1]) == normalizar_texto(agendamento.get("Horário")) \
+               and normalizar_texto(row[2]) == normalizar_texto(agendamento.get("Cliente")) \
+               and normalizar_texto(row[3]) == normalizar_texto(agendamento.get("Serviço")) \
+               and normalizar_texto(row[4]) == normalizar_texto(agendamento.get("Barbeiro")):
                 ws_agendamentos.delete_rows(i)
                 st.success(f"❌ Agendamento de {agendamento['Cliente']} às {agendamento['Horário']} apagado da planilha!")
                 return
@@ -212,23 +235,23 @@ def apagar_saida_planilha(saida):
     try:
         all_values = ws_saidas.get_all_values()
         for i, row in enumerate(all_values[1:], start=2):
-            if (row[0] == (saida.get("Data").strftime('%Y-%m-%d') if isinstance(saida.get("Data"), date) else str(saida.get("Data")))) \
-               and row[1] == saida.get("Descrição", "") \
-               and str(row[2]).replace(",", ".") == str(saida.get("Valor (R$)", 0)).replace(",", "."):
+            if (normalizar_data(row[0]) == normalizar_data(saida.get("Data"))) \
+               and normalizar_texto(row[1]) == normalizar_texto(saida.get("Descrição")) \
+               and normalizar_valor(row[2]) == normalizar_valor(saida.get("Valor (R$)", 0)):
                 ws_saidas.delete_rows(i)
                 st.success(f"❌ Saída '{saida['Descrição']}' apagada da planilha!")
                 return
     except Exception as e:
         st.error(f"Erro ao apagar saída do Google Sheets: {e}")
-
+        
 def apagar_venda_planilha(venda):
     try:
         all_values = ws_vendas.get_all_values()
         for i, row in enumerate(all_values[1:], start=2):
-            if (row[0] == (venda.get("Data").strftime('%Y-%m-%d') if isinstance(venda.get("Data"), date) else str(venda.get("Data")))) \
-               and row[1] == venda.get("Item", "") \
-               and str(row[2]).replace(",", ".") == str(venda.get("Valor (R$)", 0)).replace(",", ".") \
-               and row[3] == venda.get("Vendedor", ""):
+            if (normalizar_data(row[0]) == normalizar_data(venda.get("Data"))) \
+               and normalizar_texto(row[1]) == normalizar_texto(venda.get("Item")) \
+               and normalizar_valor(row[2]) == normalizar_valor(venda.get("Valor (R$)", 0)) \
+               and normalizar_texto(row[3]) == normalizar_texto(venda.get("Vendedor")):
                 ws_vendas.delete_rows(i)
                 st.success(f"❌ Venda '{venda['Item']}' apagada da planilha!")
                 return
@@ -661,4 +684,5 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
