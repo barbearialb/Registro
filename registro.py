@@ -145,6 +145,7 @@ def salvar_dados(agendamentos, saidas, vendas):
 
         if "Vendedor" not in df_ven.columns:
             df_ven["Vendedor"] = ""
+
         if 'Data' in df_ag.columns:
             df_ag['Data'] = df_ag['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
         if 'Data' in df_sai.columns:
@@ -152,16 +153,12 @@ def salvar_dados(agendamentos, saidas, vendas):
         if 'Data' in df_ven.columns:
             df_ven['Data'] = df_ven['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
 
-        ws_agendamentos.clear()
+        # Agora só atualiza os dados, sem apagar a planilha
         ws_agendamentos.update([df_ag.columns.values.tolist()] + df_ag.values.tolist())
-
-        ws_saidas.clear()
         ws_saidas.update([df_sai.columns.values.tolist()] + df_sai.values.tolist())
-
-        ws_vendas.clear()
         ws_vendas.update([df_ven.columns.values.tolist()] + df_ven.values.tolist())
 
-        st.sidebar.success("Dados salvos no Google Sheets com sucesso!")
+        st.sidebar.success("✅ Dados atualizados no Google Sheets!")
     except Exception as e:
         st.sidebar.error(f"Erro ao salvar dados no Google Sheets: {e}")
 
@@ -591,3 +588,4 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
