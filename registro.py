@@ -272,15 +272,20 @@ def agendamento_existe(agendamentos, data, horario, barbeiro, novo_servico):
         ag for ag in agendamentos
         if ag["Data"] == data and ag["Horário"] == horario and ag["Barbeiro"] == barbeiro
     ]        
+
     if not agendamentos_mesmo_horario:
-        return False    
+        return False  # não existe conflito
+    
+    # Se já tem 1, só permite se ambos forem "pezim"
     if len(agendamentos_mesmo_horario) == 1:
         servico_existente = agendamentos_mesmo_horario[0]["Serviço"]
         if "Pezim" in servico_existente and "Pezim" in novo_servico:
-            return False
-        if ("Pezim" in servico_existente and novo_servico != "Pezim") or ("Pezim" in novo_servico and servico_existente != "Pezim"):
-            return False
-    return True    
+            return False  # permitido 2 pezim
+        else:
+            return True   # qualquer outro conflito bloqueia
+    
+    # Se já houver 2 ou mais, bloqueia sempre
+    return True
 
 # --- CONFIG PÁGINA ---
 st.set_page_config(
@@ -436,6 +441,11 @@ else:
                     })
                     st.success(f"Agendamento para {nome_cliente} às {horario} registrado!")
                     salvar_agendamento_unico(st.session_state.agendamentos[-1])
+                    df_ag, df_sai, df_ven = carregar_dados()
+                    st.session_state.agendamentos = df_ag.to_dict('records')
+                    st.session_state.saidas = df_sai.to_dict('records')
+                    st.session_state.vendas = df_ven.to_dict('records')
+                    st.rerun()
 
                     # CORREÇÃO: Deleta as chaves para resetar os campos de valor
                     keys_to_reset = ['valor1', 'valor2', 'valor']
@@ -684,5 +694,6 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
