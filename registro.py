@@ -120,22 +120,13 @@ def carregar_dados():
     
     except gspread.exceptions.SpreadsheetNotFound:
         st.error("Planilha Google não encontrada. Verifique o ID no .streamlit/secrets.toml.")
-        return pd.DataFrame(columns=['Data', 'Horário', 'Cliente', 'Serviço', 'Barbeiro', 'Pagamento', 'Valor (R$)']), \
-               pd.DataFrame(columns=['Data', 'Descrição', 'Valor (R$)']), \
-               pd.DataFrame(columns=['Data', 'Item', 'Valor (R$)'])
+        return None, None, None
     except gspread.exceptions.APIError as e:
         st.error(f"Erro da API Google Sheets: {e}. Verifique as permissões da conta de serviço e se as APIs estão ativadas.")
-        return pd.DataFrame(columns=['Data', 'Horário', 'Cliente', 'Serviço', 'Barbeiro', 'Pagamento', 'Valor (R$)']), \
-               pd.DataFrame(columns=['Data', 'Descrição', 'Valor (R$)']), \
-               pd.DataFrame(columns=['Data', 'Item', 'Valor (R$)'])
+        return None, None, None
     except Exception as e:
         st.error(f"Erro inesperado ao carregar dados do Google Sheets: {e}")
-        # Retorne DataFrames vazios com as colunas esperadas para evitar erros no restante do app
-        return (
-            pd.DataFrame(columns=['Data', 'Horário', 'Cliente', 'Serviço', 'Barbeiro', 'Pagamento', 'Valor (R$)']),
-            pd.DataFrame(columns=['Data', 'Descrição', 'Valor (R$)']),
-            pd.DataFrame(columns=['Data', 'Item', 'Valor (R$)'])
-        )
+        return None, None, None
 
 def salvar_dados(agendamentos, saidas, vendas):
     try:
@@ -283,21 +274,35 @@ if not st.session_state.logged_in:
 
         if login_button:
             if username in USUARIOS and USUARIOS[username] == password:
-                st.session_state.logged_in = True
-                if not st.session_state.dados_carregados:
+                # Mostra uma mensagem enquanto carrega
+                with st.spinner("Conectando e carregando dados..."):
                     df_ag, df_sai, df_ven = carregar_dados()
+
+                # --- VERIFICAÇÃO CRÍTICA ---
+                # Verifica se os dados foram realmente carregados
+                if df_ag is not None and df_sai is not None and df_ven is not None:
+                    # Se o carregamento foi bem-sucedido, prossiga
+                    st.session_state.logged_in = True
+                    st.session_state.dados_carregados = True
+
                     st.session_state.agendamentos = df_ag.to_dict('records')
                     st.session_state.saidas = df_sai.to_dict('records')
                     st.session_state.vendas = df_ven.to_dict('records')
-                    # Garantir que todos os registros tenham o campo "Pagamento"
+
                     for agendamento in st.session_state.agendamentos:
                         if "Pagamento" not in agendamento:
-                            agendamento["Pagamento"] = "Não informado"  # Valor padrão
+                            agendamento["Pagamento"] = "Não informado"
 
-                    st.session_state.dados_carregados = True
-                st.rerun()
+                    st.success("Login e carregamento de dados bem-sucedidos!")
+                    st.rerun()
+                else:
+                    # Se o carregamento falhou, exibe o erro e NÃO faz login
+                    st.error("Falha ao carregar os dados da planilha. Verifique a conexão e tente novamente.")
+                    # Não altera 'logged_in' ou 'dados_carregados'
+
             else:
                 st.error("Usuário ou senha incorretos.")
+
 # ... o restante do código ...
 else:
     # --- SIDEBAR ---
@@ -635,6 +640,7 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
 
