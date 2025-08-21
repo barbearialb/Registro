@@ -346,15 +346,15 @@ if not st.session_state.logged_in:
 
 # ... o restante do código ...
 else:
-    st.title("Controle de Agenda")
-    data_selecionada = st.date_input(
-        "Selecione a Data", 
-        datetime.now().date(),
-        format="DD/MM/YYYY" 
-    )
-    # --- SIDEBAR ---
+        # --- SIDEBAR ---
     st.sidebar.title("Painel de Controle")
     st.sidebar.markdown("---")
+    data_selecionada_sidebar = st.date_input(
+        "Alterar data de visualização", 
+        data_selecionada, # Usa a data da página principal como padrão
+        key='sidebar_date_input',
+        format="DD/MM/YYYY"
+    )
     if st.sidebar.button("Salvar Agendamentos 📂", type="primary"):
         salvar_dados(st.session_state.agendamentos, st.session_state.saidas, st.session_state.vendas, data_selecionada)
     st.sidebar.markdown("---")
@@ -688,6 +688,7 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
 
