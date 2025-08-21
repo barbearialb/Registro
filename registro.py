@@ -128,72 +128,93 @@ def carregar_dados():
         st.error(f"Erro inesperado ao carregar dados do Google Sheets: {e}")
         return None, None, None
 
-def salvar_dados(agendamentos, saidas, vendas):
+def salvar_dados(agendamentos, saidas, vendas, data_selecionada):
     try:
-        # 1. Converte os dados da sessão atual para DataFrames
-        df_ag = pd.DataFrame(agendamentos)
-        df_sai = pd.DataFrame(saidas)
-        df_ven = pd.DataFrame(vendas)
+        # --- PARTE 1: VERIFICAÇÕES DE SEGURANÇA INICIAIS (MANTIDAS) ---
+        df_ag_local_full = pd.DataFrame(agendamentos)
+        df_sai_local_full = pd.DataFrame(saidas)
+        df_ven_local_full = pd.DataFrame(vendas)
 
-        # --- TRAVA DE SEGURANÇA ---
-        # A lógica a seguir previne que um estado vazio no app apague dados existentes na planilha.
-        
-        # Verificação para Agendamentos
-        if df_ag.empty and len(ws_agendamentos.get_all_values()) > 1:
-            st.sidebar.error("SALVAMENTO CANCELADO: O app não possui dados de agendamento, mas a planilha online sim. A operação foi bloqueada para evitar perda de dados.")
-            return # Interrompe a função completamente para proteger os dados
+        if df_ag_local_full.empty and len(ws_agendamentos.get_all_values()) > 1:
+            st.sidebar.error("SALVAMENTO CANCELADO (AG): O app não tem dados, mas a planilha online sim. Operação bloqueada.")
+            return
+        if df_sai_local_full.empty and len(ws_saidas.get_all_values()) > 1:
+            st.sidebar.error("SALVAMENTO CANCELADO (SA): O app não tem dados, mas a planilha online sim. Operação bloqueada.")
+            return
+        if df_ven_local_full.empty and len(ws_vendas.get_all_values()) > 1:
+            st.sidebar.error("SALVAMENTO CANCELADO (VE): O app não tem dados, mas a planilha online sim. Operação bloqueada.")
+            return
 
-        # Verificação para Saídas
-        if df_sai.empty and len(ws_saidas.get_all_values()) > 1:
-            st.sidebar.error("SALVAMENTO CANCELADO: O app não possui dados de saídas, mas a planilha online sim. A operação foi bloqueada para evitar perda de dados.")
-            return # Interrompe a função completamente
+        # --- PARTE 2: LÓGICA DE ATUALIZAÇÃO SEGURA POR DATA ---
+        with st.spinner("Salvando dados de forma segura..."):
+            # --- Processamento de AGENDAMENTOS ---
+            dados_online_ag = ws_agendamentos.get_all_records()
+            df_online_ag = pd.DataFrame(dados_online_ag)
+            df_outros_dias_ag = pd.DataFrame()
+            if not df_online_ag.empty and 'Data' in df_online_ag.columns:
+                df_online_ag['Data_formatada'] = pd.to_datetime(df_online_ag['Data'], errors='coerce').dt.date
+                df_outros_dias_ag = df_online_ag[df_online_ag['Data_formatada'] != data_selecionada].copy()
+                if 'Data_formatada' in df_outros_dias_ag.columns:
+                    df_outros_dias_ag.drop(columns=['Data_formatada'], inplace=True)
+            df_dia_atual_ag = df_ag_local_full[df_ag_local_full['Data'] == data_selecionada].copy()
+            df_final_ag = pd.concat([df_outros_dias_ag, df_dia_atual_ag], ignore_index=True)
+            if 'Data' in df_final_ag.columns and not df_final_ag.empty:
+                df_final_ag['Data'] = pd.to_datetime(df_final_ag['Data']).dt.strftime('%Y-%m-%d')
 
-        # Verificação para Vendas
-        if df_ven.empty and len(ws_vendas.get_all_values()) > 1:
-            st.sidebar.error("SALVAMENTO CANCELADO: O app não possui dados de vendas, mas a planilha online sim. A operação foi bloqueada para evitar perda de dados.")
-            return # Interrompe a função completamente
+            # --- Processamento de SAÍDAS ---
+            dados_online_sai = ws_saidas.get_all_records()
+            df_online_sai = pd.DataFrame(dados_online_sai)
+            df_outros_dias_sai = pd.DataFrame()
+            if not df_online_sai.empty and 'Data' in df_online_sai.columns:
+                df_online_sai['Data_formatada'] = pd.to_datetime(df_online_sai['Data'], errors='coerce').dt.date
+                df_outros_dias_sai = df_online_sai[df_online_sai['Data_formatada'] != data_selecionada].copy()
+                if 'Data_formatada' in df_outros_dias_sai.columns:
+                   df_outros_dias_sai.drop(columns=['Data_formatada'], inplace=True)
+            df_dia_atual_sai = df_sai_local_full[df_sai_local_full['Data'] == data_selecionada].copy()
+            df_final_sai = pd.concat([df_outros_dias_sai, df_dia_atual_sai], ignore_index=True)
+            if 'Data' in df_final_sai.columns and not df_final_sai.empty:
+                df_final_sai['Data'] = pd.to_datetime(df_final_sai['Data']).dt.strftime('%Y-%m-%d')
 
-        # --- Se todas as verificações de segurança passarem, o processo de salvamento continua ---
-        
-        # 2. Formata os dados antes de salvar
-        if "Vendedor" not in df_ven.columns:
-            df_ven["Vendedor"] = ""
-        if 'Data' in df_ag.columns and not df_ag.empty:
-            df_ag['Data'] = df_ag['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
-        if 'Data' in df_sai.columns and not df_sai.empty:
-            df_sai['Data'] = df_sai['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
-        if 'Data' in df_ven.columns and not df_ven.empty:
-            df_ven['Data'] = df_ven['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
+            # --- Processamento de VENDAS ---
+            dados_online_ven = ws_vendas.get_all_records()
+            df_online_ven = pd.DataFrame(dados_online_ven)
+            df_outros_dias_ven = pd.DataFrame()
+            if not df_online_ven.empty and 'Data' in df_online_ven.columns:
+                df_online_ven['Data_formatada'] = pd.to_datetime(df_online_ven['Data'], errors='coerce').dt.date
+                df_outros_dias_ven = df_online_ven[df_online_ven['Data_formatada'] != data_selecionada].copy()
+                if 'Data_formatada' in df_outros_dias_ven.columns:
+                   df_outros_dias_ven.drop(columns=['Data_formatada'], inplace=True)
+            df_dia_atual_ven = df_ven_local_full[df_ven_local_full['Data'] == data_selecionada].copy()
+            df_final_ven = pd.concat([df_outros_dias_ven, df_dia_atual_ven], ignore_index=True)
+            if 'Data' in df_final_ven.columns and not df_final_ven.empty:
+                df_final_ven['Data'] = pd.to_datetime(df_final_ven['Data']).dt.strftime('%Y-%m-%d')
 
-        # 3. Limpa e atualiza as planilhas de forma segura
-        # Agendamentos
-        ws_agendamentos.clear()
-        if not df_ag.empty:
-            ws_agendamentos.update([df_ag.columns.values.tolist()] + df_ag.values.tolist())
-        else: # Se o DataFrame estiver vazio (porque o usuário realmente apagou tudo), escreve só o cabeçalho
-            ws_agendamentos.update([['Data', 'Horário', 'Cliente', 'Serviço', 'Barbeiro', 'Pagamento', 'Valor 1 (R$)', 'Valor 2 (R$)', 'Valor (R$)']])
+            # --- PARTE 3: ATUALIZAÇÃO DAS PLANILHAS ---
+            ws_agendamentos.clear()
+            if not df_final_ag.empty:
+                ws_agendamentos.update([df_final_ag.columns.values.tolist()] + df_final_ag.fillna("").values.tolist())
+            else:
+                ws_agendamentos.update([['Data', 'Horário', 'Cliente', 'Serviço', 'Barbeiro', 'Pagamento', 'Valor 1 (R$)', 'Valor 2 (R$)', 'Valor (R$)']])
 
-        # Saídas
-        ws_saidas.clear()
-        if not df_sai.empty:
-            ws_saidas.update([df_sai.columns.values.tolist()] + df_sai.values.tolist())
-        else:
-            ws_saidas.update([['Data', 'Descrição', 'Valor (R$)']])
+            ws_saidas.clear()
+            if not df_final_sai.empty:
+                ws_saidas.update([df_final_sai.columns.values.tolist()] + df_final_sai.fillna("").values.tolist())
+            else:
+                ws_saidas.update([['Data', 'Descrição', 'Valor (R$)']])
 
-        # Vendas
-        ws_vendas.clear()
-        if not df_ven.empty:
-            ws_vendas.update([df_ven.columns.values.tolist()] + df_ven.values.tolist())
-        else:
-            ws_vendas.update([['Data', 'Item', 'Valor (R$)', 'Vendedor']])
+            ws_vendas.clear()
+            if not df_final_ven.empty:
+                ws_vendas.update([df_final_ven.columns.values.tolist()] + df_final_ven.fillna("").values.tolist())
+            else:
+                ws_vendas.update([['Data', 'Item', 'Valor (R$)', 'Vendedor']])
+                
+            st.sidebar.success("Dados salvos no Google Sheets com sucesso!")
 
-        st.sidebar.success("Dados salvos no Google Sheets com sucesso!")
-        
     except gspread.exceptions.APIError as e:
         st.sidebar.error(f"Erro de API do Google: {e}. Verifique as permissões da planilha.")
     except Exception as e:
         st.sidebar.error(f"Ocorreu um erro inesperado ao salvar: {e}")
-
+        
 def gerar_horarios(inicio_hora, fim_hora, intervalo_min):
     horarios = []
     current = datetime(1, 1, 1, inicio_hora, 0)
@@ -306,10 +327,11 @@ if not st.session_state.logged_in:
 # ... o restante do código ...
 else:
     # --- SIDEBAR ---
+    data_selecionada = st.date_input("Selecione a data", value=datetime.today().date(), format="DD/MM/YYYY")
     st.sidebar.title("Painel de Controle")
     st.sidebar.markdown("---")
     if st.sidebar.button("Salvar Agendamentos 📂", type="primary"):
-        salvar_dados(st.session_state.agendamentos, st.session_state.saidas, st.session_state.vendas)
+        salvar_dados(st.session_state.agendamentos, st.session_state.saidas, st.session_state.vendas, data_selecionada)
     st.sidebar.markdown("---")
     st.sidebar.info("Lembre-se de salvar suas alterações antes de sair.")
     if st.sidebar.button("Sair 🔒"):
@@ -324,7 +346,6 @@ else:
     opcoes_pagamento = ["Dinheiro", "Pix", "Cartão", "Dinheiro e Pix", "Cartão e Pix", "Cartão e Dinheiro"]
     opcoes_barbeiros = ["Aluízio", "Lucas Borges", "Erik"]
     horarios_disponiveis = gerar_horarios(8, 22, 30)
-    data_selecionada = st.date_input("Selecione a data", value=datetime.today().date(), format="DD/MM/YYYY")
 
     # --- TABS ---
     tab1, tab2, tab3 = st.tabs(["🗓️ Agendamentos", "💸 Saídas", "💼 Vendas"])
@@ -640,6 +661,7 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
 
