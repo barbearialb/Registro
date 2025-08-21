@@ -135,6 +135,7 @@ def salvar_dados(agendamentos, saidas, vendas, data_selecionada):
         df_sai_local_full = pd.DataFrame(saidas)
         df_ven_local_full = pd.DataFrame(vendas)
 
+        # Travas de segurança originais
         if df_ag_local_full.empty and len(ws_agendamentos.get_all_values()) > 1:
             st.sidebar.error("SALVAMENTO CANCELADO (AG): O app não tem dados, mas a planilha online sim. Operação bloqueada.")
             return
@@ -145,8 +146,9 @@ def salvar_dados(agendamentos, saidas, vendas, data_selecionada):
             st.sidebar.error("SALVAMENTO CANCELADO (VE): O app não tem dados, mas a planilha online sim. Operação bloqueada.")
             return
 
-        # --- PARTE 2: LÓGICA DE ATUALIZAÇÃO SEGURA POR DATA ---
+        # --- PARTE 2: LÓGICA DE ATUALIZAÇÃO SEGURA POR DATA (MAIS ROBUSTA) ---
         with st.spinner("Salvando dados de forma segura..."):
+            
             # --- Processamento de AGENDAMENTOS ---
             dados_online_ag = ws_agendamentos.get_all_records()
             df_online_ag = pd.DataFrame(dados_online_ag)
@@ -154,9 +156,13 @@ def salvar_dados(agendamentos, saidas, vendas, data_selecionada):
             if not df_online_ag.empty and 'Data' in df_online_ag.columns:
                 df_online_ag['Data_formatada'] = pd.to_datetime(df_online_ag['Data'], errors='coerce').dt.date
                 df_outros_dias_ag = df_online_ag[df_online_ag['Data_formatada'] != data_selecionada].copy()
-                if 'Data_formatada' in df_outros_dias_ag.columns:
-                    df_outros_dias_ag.drop(columns=['Data_formatada'], inplace=True)
-            df_dia_atual_ag = df_ag_local_full[df_ag_local_full['Data'] == data_selecionada].copy()
+                df_outros_dias_ag.drop(columns=['Data_formatada'], inplace=True, errors='ignore')
+            
+            # CORREÇÃO: Inicializa um DataFrame vazio e só filtra se for seguro fazer isso
+            df_dia_atual_ag = pd.DataFrame()
+            if not df_ag_local_full.empty and 'Data' in df_ag_local_full.columns:
+                df_dia_atual_ag = df_ag_local_full[df_ag_local_full['Data'] == data_selecionada].copy()
+
             df_final_ag = pd.concat([df_outros_dias_ag, df_dia_atual_ag], ignore_index=True)
             if 'Data' in df_final_ag.columns and not df_final_ag.empty:
                 df_final_ag['Data'] = pd.to_datetime(df_final_ag['Data']).dt.strftime('%Y-%m-%d')
@@ -168,9 +174,12 @@ def salvar_dados(agendamentos, saidas, vendas, data_selecionada):
             if not df_online_sai.empty and 'Data' in df_online_sai.columns:
                 df_online_sai['Data_formatada'] = pd.to_datetime(df_online_sai['Data'], errors='coerce').dt.date
                 df_outros_dias_sai = df_online_sai[df_online_sai['Data_formatada'] != data_selecionada].copy()
-                if 'Data_formatada' in df_outros_dias_sai.columns:
-                   df_outros_dias_sai.drop(columns=['Data_formatada'], inplace=True)
-            df_dia_atual_sai = df_sai_local_full[df_sai_local_full['Data'] == data_selecionada].copy()
+                df_outros_dias_sai.drop(columns=['Data_formatada'], inplace=True, errors='ignore')
+            
+            df_dia_atual_sai = pd.DataFrame()
+            if not df_sai_local_full.empty and 'Data' in df_sai_local_full.columns:
+                df_dia_atual_sai = df_sai_local_full[df_sai_local_full['Data'] == data_selecionada].copy()
+
             df_final_sai = pd.concat([df_outros_dias_sai, df_dia_atual_sai], ignore_index=True)
             if 'Data' in df_final_sai.columns and not df_final_sai.empty:
                 df_final_sai['Data'] = pd.to_datetime(df_final_sai['Data']).dt.strftime('%Y-%m-%d')
@@ -182,14 +191,18 @@ def salvar_dados(agendamentos, saidas, vendas, data_selecionada):
             if not df_online_ven.empty and 'Data' in df_online_ven.columns:
                 df_online_ven['Data_formatada'] = pd.to_datetime(df_online_ven['Data'], errors='coerce').dt.date
                 df_outros_dias_ven = df_online_ven[df_online_ven['Data_formatada'] != data_selecionada].copy()
-                if 'Data_formatada' in df_outros_dias_ven.columns:
-                   df_outros_dias_ven.drop(columns=['Data_formatada'], inplace=True)
-            df_dia_atual_ven = df_ven_local_full[df_ven_local_full['Data'] == data_selecionada].copy()
+                df_outros_dias_ven.drop(columns=['Data_formatada'], inplace=True, errors='ignore')
+
+            df_dia_atual_ven = pd.DataFrame()
+            if not df_ven_local_full.empty and 'Data' in df_ven_local_full.columns:
+                df_dia_atual_ven = df_ven_local_full[df_ven_local_full['Data'] == data_selecionada].copy()
+
             df_final_ven = pd.concat([df_outros_dias_ven, df_dia_atual_ven], ignore_index=True)
             if 'Data' in df_final_ven.columns and not df_final_ven.empty:
                 df_final_ven['Data'] = pd.to_datetime(df_final_ven['Data']).dt.strftime('%Y-%m-%d')
 
             # --- PARTE 3: ATUALIZAÇÃO DAS PLANILHAS ---
+            # (Esta parte permanece a mesma)
             ws_agendamentos.clear()
             if not df_final_ag.empty:
                 ws_agendamentos.update([df_final_ag.columns.values.tolist()] + df_final_ag.fillna("").values.tolist())
@@ -661,6 +674,7 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
 
