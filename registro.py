@@ -340,6 +340,7 @@ if not st.session_state.logged_in:
 # ... o restante do código ...
 else:
     # --- SIDEBAR ---
+    st.title("Registro Diário da Barbearia Lucas Borges")
     data_selecionada = st.date_input("Selecione a data", value=datetime.today().date(), format="DD/MM/YYYY")
     st.sidebar.title("Painel de Controle")
     st.sidebar.markdown("---")
@@ -353,7 +354,6 @@ else:
         st.rerun()
 
     # --- TÍTULO E ENTRADAS ---
-    st.title("Registro Diário da Barbearia Lucas Borges")
     st.markdown("---")
     opcoes_servicos = ["Degradê", "Pezim", "Barba", "Social", "Tradicional", "Visagismo", "Navalhado"]
     opcoes_pagamento = ["Dinheiro", "Pix", "Cartão", "Dinheiro e Pix", "Cartão e Pix", "Cartão e Dinheiro"]
@@ -674,6 +674,7 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
 
