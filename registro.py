@@ -143,21 +143,17 @@ def salvar_dados(agendamentos, saidas, vendas, data_selecionada):
             if not df_ag_sheet.empty and 'Data' in df_ag_sheet.columns:
                 df_ag_sheet['Data'] = pd.to_datetime(df_ag_sheet['Data'], errors='coerce').dt.date
 
-            # Pega os dados do dia que estão no app e na planilha
             agendamentos_do_dia_app = [ag for ag in agendamentos if ag.get('Data') == data_selecionada]
-            agendamentos_do_dia_sheet = []
+            agendamentos_do_dia_sheet = pd.DataFrame() # Inicializa como DF vazio
             if not df_ag_sheet.empty:
                 agendamentos_do_dia_sheet = df_ag_sheet[df_ag_sheet['Data'] == data_selecionada]
 
-            # --- TRAVA DE SEGURANÇA (ADAPTADA) ---
-            # Se o app não tem dados para hoje, mas a planilha tem, bloqueie.
+            # --- TRAVA DE SEGURANÇA (CORRIGIDA) ---
+            # Se a lista do app está vazia, mas o DataFrame da planilha não está...
             if not agendamentos_do_dia_app and not agendamentos_do_dia_sheet.empty:
                 st.sidebar.error(f"SALVAMENTO CANCELADO: O app não possui dados para o dia {data_selecionada.strftime('%d/%m')}, mas a planilha online sim. A operação foi bloqueada para evitar perda de dados.")
-                return # Interrompe a função
+                return 
 
-            # Se a trava passar, o processo continua...
-            
-            # Pega os dados de outros dias
             if not df_ag_sheet.empty:
                 df_ag_outros_dias = df_ag_sheet[df_ag_sheet['Data'] != data_selecionada]
             else:
@@ -174,14 +170,14 @@ def salvar_dados(agendamentos, saidas, vendas, data_selecionada):
             df_ag_final = df_ag_final.reindex(columns=colunas_ag_padrao).fillna('')
             ws_agendamentos.update([df_ag_final.columns.values.tolist()] + df_ag_final.values.tolist())
 
-            # --- REPETIR PARA SAÍDAS (COM TRAVA) ---
+            # --- REPETIR PARA SAÍDAS (COM TRAVA CORRIGIDA) ---
             all_sai_sheet = ws_saidas.get_all_records()
             df_sai_sheet = pd.DataFrame(all_sai_sheet)
             if not df_sai_sheet.empty and 'Data' in df_sai_sheet.columns:
                 df_sai_sheet['Data'] = pd.to_datetime(df_sai_sheet['Data'], errors='coerce').dt.date
 
             saidas_do_dia_app = [s for s in saidas if s.get('Data') == data_selecionada]
-            saidas_do_dia_sheet = []
+            saidas_do_dia_sheet = pd.DataFrame()
             if not df_sai_sheet.empty:
                 saidas_do_dia_sheet = df_sai_sheet[df_sai_sheet['Data'] == data_selecionada]
             
@@ -203,14 +199,14 @@ def salvar_dados(agendamentos, saidas, vendas, data_selecionada):
             df_sai_final = df_sai_final.reindex(columns=colunas_sai_padrao).fillna('')
             ws_saidas.update([df_sai_final.columns.values.tolist()] + df_sai_final.values.tolist())
 
-            # --- REPETIR PARA VENDAS (COM TRAVA) ---
+            # --- REPETIR PARA VENDAS (COM TRAVA CORRIGIDA) ---
             all_ven_sheet = ws_vendas.get_all_records()
             df_ven_sheet = pd.DataFrame(all_ven_sheet)
             if not df_ven_sheet.empty and 'Data' in df_ven_sheet.columns:
                 df_ven_sheet['Data'] = pd.to_datetime(df_ven_sheet['Data'], errors='coerce').dt.date
 
             vendas_do_dia_app = [v for v in vendas if v.get('Data') == data_selecionada]
-            vendas_do_dia_sheet = []
+            vendas_do_dia_sheet = pd.DataFrame()
             if not df_ven_sheet.empty:
                 vendas_do_dia_sheet = df_ven_sheet[df_ven_sheet['Data'] == data_selecionada]
             
@@ -228,7 +224,7 @@ def salvar_dados(agendamentos, saidas, vendas, data_selecionada):
             if 'Data' in df_ven_final.columns:
                 df_ven_final['Data'] = df_ven_final['Data'].apply(lambda x: x.strftime('%Y-%m-%d') if isinstance(x, date) else x)
             ws_vendas.clear()
-            colunas_ven_padrao = ['Data', 'Item', 'Valor (R$)', 'Vendedor']
+            colunas_ven_padrao = ['Data', 'Item', 'Valor (R$)'] # Removido Vendedor para bater com a planilha
             df_ven_final = df_ven_final.reindex(columns=colunas_ven_padrao).fillna('')
             ws_vendas.update([df_ven_final.columns.values.tolist()] + df_ven_final.values.tolist())
 
@@ -692,6 +688,7 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
 
