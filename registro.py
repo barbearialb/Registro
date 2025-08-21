@@ -350,6 +350,12 @@ if not st.session_state.logged_in:
 
 # ... o restante do código ...
 else:
+    st.title("Controle de Agenda")
+    data_selecionada = st.date_input(
+        "Selecione a Data", 
+        datetime.now().date(),
+        format="DD/MM/YYYY" 
+    )
     # --- SIDEBAR ---
     st.sidebar.title("Painel de Controle")
     st.sidebar.markdown("---")
@@ -358,8 +364,9 @@ else:
     st.sidebar.markdown("---")
     st.sidebar.info("Lembre-se de salvar suas alterações antes de sair.")
     if st.sidebar.button("Sair 🔒"):
-        st.session_state.logged_in = False
-        st.session_state.dados_carregados = False
+        for key in ['logged_in', 'dados_carregados', 'agendamentos', 'saidas', 'vendas']:
+            if key in st.session_state:
+                del st.session_state[key]
         st.rerun()
 
     # --- TÍTULO E ENTRADAS ---
@@ -685,6 +692,7 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
 
