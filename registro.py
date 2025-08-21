@@ -349,20 +349,24 @@ else:
         # --- SIDEBAR ---
     st.sidebar.title("Painel de Controle")
     st.sidebar.markdown("---")
-    data_selecionada_sidebar = st.date_input(
-        "Alterar data de visualização", 
-        data_selecionada, # Usa a data da página principal como padrão
-        key='sidebar_date_input',
+
+    # Este é o ÚNICO seletor de data. Ele fica na sidebar.
+    data_selecionada = st.sidebar.date_input(
+        "Selecione a Data",
+        datetime.now().date(),
         format="DD/MM/YYYY"
     )
+
     if st.sidebar.button("Salvar Agendamentos 📂", type="primary"):
+        # A função de salvar usa a data selecionada na sidebar.
         salvar_dados(st.session_state.agendamentos, st.session_state.saidas, st.session_state.vendas, data_selecionada)
+
     st.sidebar.markdown("---")
     st.sidebar.info("Lembre-se de salvar suas alterações antes de sair.")
+
     if st.sidebar.button("Sair 🔒"):
-        for key in ['logged_in', 'dados_carregados', 'agendamentos', 'saidas', 'vendas']:
-            if key in st.session_state:
-                del st.session_state[key]
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
         st.rerun()
 
     # --- TÍTULO E ENTRADAS ---
@@ -688,6 +692,7 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
 
