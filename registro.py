@@ -347,19 +347,33 @@ if not st.session_state.logged_in:
 # ... o restante do código ...
 else:
         # --- SIDEBAR ---
+    def atualizar_data_selecionada():
+        # O valor do seletor (com a chave 'seletor_de_data') é copiado
+        # para a nossa variável de estado principal 'data_selecionada'.
+        st.session_state.data_selecionada = st.session_state.seletor_de_data
+
+    # Inicializa a data selecionada no estado da sessão, se ainda não existir.
+    if 'data_selecionada' not in st.session_state:
+        st.session_state.data_selecionada = datetime.now().date()
+
+
+    # --- SIDEBAR COM O ÚNICO SELETOR DE DATA ---
     st.sidebar.title("Painel de Controle")
     st.sidebar.markdown("---")
 
-    # Este é o ÚNICO seletor de data. Ele fica na sidebar.
-    data_selecionada = st.sidebar.date_input(
+    # Este é o ÚNICO seletor de data.
+    # Ele agora usa 'on_change' para garantir que a tela seja recarregada.
+    st.sidebar.date_input(
         "Selecione a Data",
-        datetime.now().date(),
-        format="DD/MM/YYYY"
+        value=st.session_state.data_selecionada, # O valor é lido do estado da sessão
+        format="DD/MM/YYYY",
+        key='seletor_de_data', # Uma chave para identificar o widget
+        on_change=atualizar_data_selecionada # A 'mágica' acontece aqui
     )
 
     if st.sidebar.button("Salvar Agendamentos 📂", type="primary"):
-        # A função de salvar usa a data selecionada na sidebar.
-        salvar_dados(st.session_state.agendamentos, st.session_state.saidas, st.session_state.vendas, data_selecionada)
+        # A função de salvar usa a data que está no estado da sessão.
+        salvar_dados(st.session_state.agendamentos, st.session_state.saidas, st.session_state.vendas, st.session_state.data_selecionada)
 
     st.sidebar.markdown("---")
     st.sidebar.info("Lembre-se de salvar suas alterações antes de sair.")
@@ -369,8 +383,11 @@ else:
             del st.session_state[key]
         st.rerun()
 
-    # --- TÍTULO E ENTRADAS ---
-    st.title("Registro Diário da Barbearia Lucas Borges")
+
+    # --- PÁGINA PRINCIPAL ---
+    # O conteúdo da página principal agora usa a 'st.session_state.data_selecionada'
+    
+    st.title(f"Registro Diário Barbearia Lucas Borges- {st.session_state.data_selecionada.strftime('%d/%m/%Y')}")
     st.markdown("---")
     opcoes_servicos = ["Degradê", "Pezim", "Barba", "Social", "Tradicional", "Visagismo", "Navalhado"]
     opcoes_pagamento = ["Dinheiro", "Pix", "Cartão", "Dinheiro e Pix", "Cartão e Pix", "Cartão e Dinheiro"]
@@ -692,6 +709,7 @@ else:
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
 
 
 
