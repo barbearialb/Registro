@@ -704,10 +704,11 @@ else:
     servicos_totais = servicos_lucas + servicos_aluizio + servicos_erik
     col_lucas, col_aluizio, col_erik, col_total = st.columns(4)
     
-    col_lucas.metric("Atendimentos (Lucas Borges)", f"{servicos_lucas} atendimento(s)")
-    col_aluizio.metric("Atendimentos (Aluízio)", f"{servicos_aluizio} atendimento(s)")
-    col_erik.metric("Atendimentos (Erik)", f"{servicos_erik} serviço(s)")
-    col_total.metric("Atendimentos Totais", f"{servicos_totais} atendimento(s)")
+    col_lucas.metric("Atendimentos (Lucas Borges)", f"{servicos_lucas} Serviço(s)")
+    col_aluizio.metric("Atendimentos (Aluízio)", f"{servicos_aluizio} Serviço(s)")
+    col_erik.metric("Atendimentos (Erik)", f"{servicos_erik} Serviço(s)")
+    col_total.metric("Atendimentos Totais", f"{servicos_totais} Serviço(s)")
+
 
 
 
