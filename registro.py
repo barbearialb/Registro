@@ -701,9 +701,12 @@ else:
 
 # Exibição da contagem de serviços por barbeiro
     st.subheader("Produtividade")
-# Layout ajustado para 3 colunas para incluir o Erik
-    col_lucas, col_aluizio, col_erik = st.columns(3) 
-    col_lucas.metric("Serviços (Lucas Borges)", f"{servicos_lucas} serviço(s)")
-    col_aluizio.metric("Serviços (Aluízio)", f"{servicos_aluizio} serviço(s)")
-    col_erik.metric("Serviços (Erik)", f"{servicos_erik} serviço(s)") # Nova métrica para o Erik
+    servicos_totais = servicos_lucas + servicos_aluizio + servicos_erik
+    col_lucas, col_aluizio, cok_erik, col total = st.columns(4)
+    
+    col_lucas.metric("Atendimentos (Lucas Borges)", f"{servicos_lucas} atendimento(s)")
+    col_aluizio.metric("Atendimentos (Aluízio)", f"{servicos_aluizio} atendimento(s)")
+    col_erik.metric("Atendimentos (Erik)", f"{servicos_erik} serviço(s)")
+    col_total.metric("Atendimentos Totais", f"{servicos_totais} atendimento(s)")
+
 
