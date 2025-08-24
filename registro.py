@@ -652,10 +652,31 @@ else:
 
     # --- RESUMO FINANCEIRO ---
     st.markdown("---")
-    st.header("📊 Resumo Financeiro do Dia")
+    st.header("📊 Relatório Diário")
     ag = st.session_state.agendamentos
     sai = st.session_state.saidas
     ven = st.session_state.vendas
+
+    servicos_lucas = 0
+    servicos_aluizio = 0
+    servicos_erik = 0 # Novo contador para o Erik
+
+# Itera sobre todos os agendamentos registrados na sessão
+    for agendamento in ag:
+        if agendamento.get("Data") == data_selecionada:
+            servico = agendamento.get("Serviço", "")
+            barbeiro = agendamento.get("Barbeiro")
+        
+            contagem = 2 if "com Barba" in servico else 1
+        
+        # Adiciona a contagem ao total do barbeiro correspondente
+            if barbeiro == "Lucas Borges":
+                servicos_lucas += contagem
+            elif barbeiro == "Aluízio":
+                servicos_aluizio += contagem
+            elif barbeiro == "Erik": # Adicionada a condição para o Erik
+                servicos_erik += contagem
+
 
     def valor_seguro(valor):
         try:
@@ -668,12 +689,24 @@ else:
     total_ven = sum(valor_seguro(reg.get("Valor (R$)", 0)) for reg in ven if reg.get("Data") == data_selecionada)
     
     lucro = total_ag + total_ven - total_sai
-    
+
+    st.subheader("Financeiro")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("💼 Agendamentos", f"R$ {total_ag:.2f}")
     col2.metric("💼 Vendas", f"R$ {total_ven:.2f}")
     col3.metric("💸 Saídas", f"R$ {total_sai:.2f}")
     col4.metric("📈 Lucro Líquido", f"R$ {lucro:.2f}")
+
+    st.markdown("---")
+
+# Exibição da contagem de serviços por barbeiro
+    st.subheader("Produtividade")
+# Layout ajustado para 3 colunas para incluir o Erik
+    col_lucas, col_aluizio, col_erik = st.columns(3) 
+    col_lucas.metric("Serviços (Lucas Borges)", f"{servicos_lucas} serviço(s)")
+    col_aluizio.metric("Serviços (Aluízio)", f"{servicos_aluizio} serviço(s)")
+    col_erik.metric("Serviços (Erik)", f"{servicos_erik} serviço(s)") # Nova métrica para o Erik
+
 
 
 
