@@ -707,10 +707,3 @@ else:
     col_aluizio.metric("Serviços (Aluízio)", f"{servicos_aluizio} serviço(s)")
     col_erik.metric("Serviços (Erik)", f"{servicos_erik} serviço(s)") # Nova métrica para o Erik
 
-
-
-
-
-
-
-
