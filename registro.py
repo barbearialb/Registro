@@ -450,7 +450,7 @@ else:
         
         # Iterar sobre os agendamentos e adicionar um botão de exclusão
                 (col_idx, col_horario, col_cliente, col_servico, col_barbeiro, col_pagamento, 
-                 col_v1, col_v2, col_valor, col_acao) = st.columns([0.4, 0.8, 1.8, 1.5, 1.2, 1.2, 0.8, 0.8, 0.8, 0.8])
+                 col_v1, col_v2, col_valor, col_acao) = st.columns([0.4, 1.0, 1.6, 1.5, 1.2, 1.2, 0.8, 0.8, 0.8, 0.8])
                 with col_idx: st.markdown("**#**")
                 with col_horario: st.markdown("**Horário**")
                 with col_cliente: st.markdown("**Cliente**")
@@ -464,7 +464,7 @@ else:
         
                 for i, agendamento in enumerate(agendamentos_para_mostrar):
                     (col_idx, col_horario, col_cliente, col_servico, col_barbeiro, col_pagamento, 
-                     col_v1, col_v2, col_valor, col_acao) = st.columns([0.4, 0.8, 1.8, 1.5, 1.2, 1.2, 0.8, 0.8, 0.8, 0.8])
+                     col_v1, col_v2, col_valor, col_acao) = st.columns([0.4, 1.0, 1.6, 1.5, 1.2, 1.2, 0.8, 0.8, 0.8, 0.8])
                     with col_idx:
                         st.write(i + 1) # Número da linha
                     with col_horario:
@@ -708,6 +708,7 @@ else:
     col_aluizio.metric("Atendimentos (Aluízio)", f"{servicos_aluizio} Serviço(s)")
     col_erik.metric("Atendimentos (Erik)", f"{servicos_erik} Serviço(s)")
     col_total.metric("Atendimentos Totais", f"{servicos_totais} Serviço(s)")
+
 
 
 
