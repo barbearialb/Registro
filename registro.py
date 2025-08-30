@@ -5,6 +5,11 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import json
 
+st.set_page_config(
+    page_title="Registro Financeiro - Barbearia Lucas Borges",
+    page_icon="💈" 
+)
+
 # --- CONFIGURAÇÕES ---
 USUARIOS = {
     "lb": "cn",
@@ -708,6 +713,7 @@ else:
     col_aluizio.metric("Atendimentos (Aluízio)", f"{servicos_aluizio} Serviço(s)")
     col_erik.metric("Atendimentos (Erik)", f"{servicos_erik} Serviço(s)")
     col_total.metric("Atendimentos Totais", f"{servicos_totais} Serviço(s)")
+
 
 
 
