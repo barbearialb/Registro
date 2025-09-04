@@ -4,6 +4,7 @@ from datetime import datetime, date
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import json
+from streamlit.components.v1 import html
 
 st.set_page_config(
     page_title="Registro Financeiro - Barbearia Lucas Borges",
@@ -748,6 +749,7 @@ else:
     col_aluizio.metric("Atendimentos (Aluízio)", f"{servicos_aluizio} Serviço(s)")
     col_erik.metric("Atendimentos (Erik)", f"{servicos_erik} Serviço(s)")
     col_total.metric("Atendimentos Totais", f"{servicos_totais} Serviço(s)")
+
 
 
 
