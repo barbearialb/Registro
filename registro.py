@@ -10,19 +10,40 @@ st.set_page_config(
     page_icon="💈" 
 )
 
-st.markdown(
-    """
-    <link rel="manifest" href="manifest.json">
+pwa_html_code = """
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js');
-            });
+        // Função para adicionar a tag <link> do manifesto
+        function addManifestLink() {
+            const link = parent.document.createElement('link');
+            link.rel = 'manifest';
+            link.href = 'manifest.json';
+            parent.document.head.appendChild(link);
+            console.log('Manifest link added to parent document.');
         }
+
+        // Função para registrar o Service Worker
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.service-worker.register('sw.js')
+                        .then(registration => {
+                            console.log('Service Worker registration successful:', registration);
+                        })
+                        .catch(err => {
+                            console.error('Service Worker registration failed:', err);
+                        });
+                });
+            }
+        }
+
+        // Executa as funções
+        addManifestLink();
+        registerServiceWorker();
     </script>
-    """,
-    unsafe_allow_html=True,
-)
+"""
+
+# Renderiza o componente HTML (invisível na página)
+html(pwa_html_code, height=0)
 
 # --- CONFIGURAÇÕES ---
 USUARIOS = {
@@ -727,6 +748,7 @@ else:
     col_aluizio.metric("Atendimentos (Aluízio)", f"{servicos_aluizio} Serviço(s)")
     col_erik.metric("Atendimentos (Erik)", f"{servicos_erik} Serviço(s)")
     col_total.metric("Atendimentos Totais", f"{servicos_totais} Serviço(s)")
+
 
 
 
