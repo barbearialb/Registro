@@ -10,6 +10,27 @@ st.set_page_config(
     page_icon="💈" 
 )
 
+# --- CÓDIGO PARA HABILITAR O PWA ---
+# Este bloco de código injeta o HTML necessário no cabeçalho da página
+# para que o navegador encontre o manifest.json e registre o service worker.
+pwa_code = """
+    <head>
+        <link rel="manifest" href="/manifest.json">
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    }, function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+                });
+            }
+        </script>
+    </head>
+"""
+st.markdown(pwa_code, unsafe_allow_html=True)
+
 # --- CONFIGURAÇÕES ---
 USUARIOS = {
     "lb": "cn",
@@ -713,6 +734,7 @@ else:
     col_aluizio.metric("Atendimentos (Aluízio)", f"{servicos_aluizio} Serviço(s)")
     col_erik.metric("Atendimentos (Erik)", f"{servicos_erik} Serviço(s)")
     col_total.metric("Atendimentos Totais", f"{servicos_totais} Serviço(s)")
+
 
 
 
