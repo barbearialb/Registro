@@ -10,21 +10,19 @@ st.set_page_config(
     page_icon="💈" 
 )
 
-pwa_code = """
-    <link rel="manifest" href="/static/manifest.json">
+st.markdown(
+    """
+    <link rel="manifest" href="manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/static/sw.js').then(function(registration) {
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                }, function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
             });
         }
     </script>
-"""
-st.markdown(pwa_code, unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True,
+)
 
 # --- CONFIGURAÇÕES ---
 USUARIOS = {
@@ -729,6 +727,7 @@ else:
     col_aluizio.metric("Atendimentos (Aluízio)", f"{servicos_aluizio} Serviço(s)")
     col_erik.metric("Atendimentos (Erik)", f"{servicos_erik} Serviço(s)")
     col_total.metric("Atendimentos Totais", f"{servicos_totais} Serviço(s)")
+
 
 
 
