@@ -13,7 +13,7 @@ st.set_page_config(
 st.markdown(
     """
     <head>
-        <link rel="apple-touch-icon" href="icone.png">
+        <link rel="apple-touch-icon" href="icone_192.png">
     </head>
     """,
     unsafe_allow_html=True,
@@ -723,6 +723,7 @@ else:
     col_aluizio.metric("Atendimentos (Aluízio)", f"{servicos_aluizio} Serviço(s)")
     col_erik.metric("Atendimentos (Erik)", f"{servicos_erik} Serviço(s)")
     col_total.metric("Atendimentos Totais", f"{servicos_totais} Serviço(s)")
+
 
 
 
