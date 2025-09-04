@@ -10,6 +10,16 @@ st.set_page_config(
     page_icon="💈" 
 )
 
+st.markdown(
+    """
+    <head>
+        <link rel="apple-touch-icon" href="icone.png">
+    </head>
+    """,
+    unsafe_allow_html=True,
+)
+# --- FIM DO CÓDIGO ---
+
 # --- CONFIGURAÇÕES ---
 USUARIOS = {
     "lb": "cn",
@@ -713,6 +723,7 @@ else:
     col_aluizio.metric("Atendimentos (Aluízio)", f"{servicos_aluizio} Serviço(s)")
     col_erik.metric("Atendimentos (Erik)", f"{servicos_erik} Serviço(s)")
     col_total.metric("Atendimentos Totais", f"{servicos_totais} Serviço(s)")
+
 
 
 
