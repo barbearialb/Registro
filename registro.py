@@ -10,24 +10,6 @@ st.set_page_config(
     page_icon="💈" 
 )
 
-st.markdown(
-    """
-    <link rel="manifest" href="manifest.json">
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(reg => {
-                    console.log('Service worker registered.', reg);
-                }).catch(err => {
-                    console.log('Service worker registration failed: ', err);
-                });
-            });
-        }
-    </script>
-    """,
-    unsafe_allow_html=True,
-
 # --- CONFIGURAÇÕES ---
 USUARIOS = {
     "lb": "cn",
@@ -731,6 +713,7 @@ else:
     col_aluizio.metric("Atendimentos (Aluízio)", f"{servicos_aluizio} Serviço(s)")
     col_erik.metric("Atendimentos (Erik)", f"{servicos_erik} Serviço(s)")
     col_total.metric("Atendimentos Totais", f"{servicos_totais} Serviço(s)")
+
 
 
 
